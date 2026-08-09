@@ -1,0 +1,349 @@
+import { Language } from './types';
+
+export const t = (lang: Language, key: string): string => {
+  const keys = key.split('.');
+  let current: any = translations[lang] || translations['English'];
+  for (const k of keys) {
+    if (current[k] === undefined) {
+      // Fallback to English
+      let fallback: any = translations['English'];
+      for (const fk of keys) {
+        if (fallback[fk] === undefined) return key;
+        fallback = fallback[fk];
+      }
+      return fallback as any;
+    }
+    current = current[k];
+  }
+  return current as any;
+};
+
+const translations: Record<Language, any> = {
+  English: {
+    app: {
+      title: "AgriMind",
+      subtitle: "Precision Agriculture",
+      newSoilTest: "New Soil Test",
+      dashboard: "Dashboard",
+      soilAnalysis: "Soil Analysis",
+      recommendations: "Crop Recommendations",
+      weather: "Weather",
+      chatbot: "Chatbot",
+      settings: "Settings",
+      language: "Language",
+      region: "REGION",
+      notSet: "Not Set"
+    },
+    dashboard: {
+      optimalWindow: "Optimal planting window approaching",
+      optimalDesc: "Based on recent soil tests and forecasted rainfall, preparing fields for cultivation within the next 72 hours will maximize early growth potential.",
+      topCrops: "Top Recommended Crops",
+      runSoilTest: "Run Soil Test",
+      updatedJustNow: "Updated: Just Now",
+      suitability: "Suitability",
+      topMatch: "Top Match",
+      viewTimeline: "View Growth Timeline",
+      marketPricing: "Market Pricing",
+      viewActionPlan: "View Action Plan",
+      noData: "No recent soil test data available.",
+      startAnalysis: "Start Analysis",
+      aiAssistant: "AI Farming Assistant",
+      criticalAction: "Critical Action Plan",
+      why: "Why"
+    },
+    soil: {
+      title: "New Soil Analysis",
+      desc: "Enter your field parameters to receive AI-powered crop recommendations tailored to your specific conditions.",
+      composition: "Soil Composition",
+      nitrogen: "Nitrogen (N)",
+      phosphorus: "Phosphorus (P)",
+      potassium: "Potassium (K)",
+      ph: "pH Level",
+      climate: "Climate & Location",
+      temp: "Temperature (°C)",
+      humidity: "Humidity (%)",
+      rainfall: "Rainfall (mm)",
+      location: "Location",
+      season: "Season",
+      selectSeason: "Select Season",
+      kharif: "Kharif (Monsoon)",
+      rabi: "Rabi (Winter)",
+      zaid: "Zaid (Summer)",
+      annual: "Annual/Year-round",
+      generate: "Generate AI Recommendations",
+      analyzing: "Analyzing Field Data..."
+    },
+    recs: {
+      title: "AI Crop Recommendations",
+      translation: "translation",
+      analyzing: "Neural Network Analyzing Data...",
+      analyzingDesc: "Comparing your soil profile against historical yield models.",
+      noRecs: "No Recommendations Yet",
+      noRecsDesc: "Please complete a soil analysis first to receive tailored crop recommendations.",
+      topMatch: "Top Match",
+      suitability: "Suitability",
+      whyCrop: "Why this crop?",
+      actionPlan: "Action Plan",
+      viewFull: "View Full Analysis"
+    },
+    weather: {
+      title: "Agricultural Weather Forecast",
+      loading: "Loading weather data for",
+      error: "No weather data available. Please provide a valid location in the Soil Analysis form.",
+      heatWarning: "High Heat Warning",
+      heatDesc: "Increase irrigation frequency. Forecast predicts sustained high temperatures.",
+      current: "Current Conditions",
+      humidity: "Humidity",
+      wind: "Wind",
+      precip: "Precip",
+      uvMax: "UV Max",
+      et: "Evapotranspiration",
+      etDesc: "Estimated water loss. Adjust irrigation accordingly.",
+      soilTemp: "Soil Temperature",
+      soilTempDesc: "Optimal for most seed germination.",
+      solar: "Solar Radiation",
+      solarDesc: "High photosynthetic potential",
+      outlook: "7-Day Agricultural Outlook",
+      today: "Today",
+      rainExpected: "Rain expected",
+      optimalWork: "Optimal conditions for field work"
+    },
+    chat: {
+      title: "AI Farming Assistant",
+      desc: "Ask about crops, weather, or your soil test in",
+      analyzing: "Analyzing data...",
+      placeholder: "Ask a question in"
+    },
+    settings: {
+      title: "Settings",
+      desc: "Manage your preferences and account settings.",
+      general: "General Preferences",
+      language: "Language",
+      defaultLoc: "Default Location",
+      updateLoc: "Update via new soil test.",
+      notifications: "Notifications & Privacy",
+      push: "Push Notifications",
+      pushDesc: "Weather alerts and crop tips",
+      privacy: "Data Privacy",
+      privacyDesc: "Manage data sharing"
+    }
+  },
+  Hindi: {
+    app: {
+      title: "एग्रीमाइंड",
+      subtitle: "सटीक कृषि",
+      newSoilTest: "नया मृदा परीक्षण",
+      dashboard: "डैशबोर्ड",
+      soilAnalysis: "मृदा विश्लेषण",
+      recommendations: "फसल सिफारिशें",
+      weather: "मौसम",
+      chatbot: "चैटबॉट",
+      settings: "सेटिंग्स",
+      language: "भाषा",
+      region: "क्षेत्र",
+      notSet: "सेट नहीं है"
+    },
+    dashboard: {
+      optimalWindow: "बुवाई का सही समय आ रहा है",
+      optimalDesc: "हाल के मृदा परीक्षण और अनुमानित बारिश के आधार पर, अगले 72 घंटों में खेत तैयार करने से अधिकतम लाभ होगा।",
+      topCrops: "शीर्ष अनुशंसित फसलें",
+      runSoilTest: "मृदा परीक्षण करें",
+      updatedJustNow: "अभी अपडेट किया गया",
+      suitability: "उपयुक्तता",
+      topMatch: "सर्वश्रेष्ठ मिलान",
+      viewTimeline: "विकास समयरेखा देखें",
+      marketPricing: "बाजार मूल्य",
+      viewActionPlan: "कार्य योजना देखें",
+      noData: "हाल का कोई मृदा परीक्षण डेटा उपलब्ध नहीं है।",
+      startAnalysis: "विश्लेषण शुरू करें",
+      aiAssistant: "एआई कृषि सहायक",
+      criticalAction: "महत्वपूर्ण कार्य योजना",
+      why: "क्यों"
+    },
+    soil: {
+      title: "नया मृदा विश्लेषण",
+      desc: "अपनी विशिष्ट परिस्थितियों के अनुरूप एआई-संचालित फसल सिफारिशें प्राप्त करने के लिए अपने खेत के पैरामीटर दर्ज करें।",
+      composition: "मृदा संरचना",
+      nitrogen: "नाइट्रोजन (N)",
+      phosphorus: "फास्फोरस (P)",
+      potassium: "पोटेशियम (K)",
+      ph: "पीएच स्तर (pH)",
+      climate: "जलवायु और स्थान",
+      temp: "तापमान (°C)",
+      humidity: "नमी (%)",
+      rainfall: "वर्षा (mm)",
+      location: "स्थान",
+      season: "मौसम",
+      selectSeason: "मौसम चुनें",
+      kharif: "खरीफ (मानसून)",
+      rabi: "रबी (सर्दी)",
+      zaid: "ज़ैद (गर्मी)",
+      annual: "वार्षिक",
+      generate: "एआई सिफारिशें उत्पन्न करें",
+      analyzing: "डेटा का विश्लेषण किया जा रहा है..."
+    },
+    recs: {
+      title: "एआई फसल सिफारिशें",
+      translation: "अनुवाद",
+      analyzing: "न्यूरल नेटवर्क डेटा का विश्लेषण कर रहा है...",
+      analyzingDesc: "ऐतिहासिक उपज मॉडल के साथ आपकी मिट्टी की प्रोफ़ाइल की तुलना की जा रही है।",
+      noRecs: "अभी तक कोई सिफारिश नहीं",
+      noRecsDesc: "फसल की सिफारिशें प्राप्त करने के लिए कृपया पहले मिट्टी का विश्लेषण पूरा करें।",
+      topMatch: "सर्वश्रेष्ठ मिलान",
+      suitability: "उपयुक्तता",
+      whyCrop: "यह फसल क्यों?",
+      actionPlan: "कार्य योजना",
+      viewFull: "पूर्ण विश्लेषण देखें"
+    },
+    weather: {
+      title: "कृषि मौसम पूर्वानुमान",
+      loading: "मौसम डेटा लोड हो रहा है",
+      error: "मौसम डेटा उपलब्ध नहीं है। कृपया मृदा विश्लेषण में एक वैध स्थान प्रदान करें।",
+      heatWarning: "उच्च गर्मी की चेतावनी",
+      heatDesc: "सिंचाई की आवृत्ति बढ़ाएं। लगातार उच्च तापमान का अनुमान है।",
+      current: "वर्तमान स्थितियां",
+      humidity: "नमी",
+      wind: "हवा",
+      precip: "वर्षा",
+      uvMax: "यूवी अधिकतम",
+      et: "वाष्पोत्सर्जन",
+      etDesc: "अनुमानित जल हानि। उसके अनुसार सिंचाई समायोजित करें।",
+      soilTemp: "मिट्टी का तापमान",
+      soilTempDesc: "बीज अंकुरण के लिए इष्टतम।",
+      solar: "सौर विकिरण",
+      solarDesc: "उच्च प्रकाश संश्लेषण क्षमता",
+      outlook: "7-दिवसीय कृषि दृष्टिकोण",
+      today: "आज",
+      rainExpected: "बारिश की उम्मीद",
+      optimalWork: "खेत के काम के लिए अनुकूल परिस्थितियां"
+    },
+    chat: {
+      title: "एआई कृषि सहायक",
+      desc: "फसलों, मौसम या मृदा परीक्षण के बारे में पूछें",
+      analyzing: "डेटा का विश्लेषण किया जा रहा है...",
+      placeholder: "अपना प्रश्न पूछें"
+    },
+    settings: {
+      title: "सेटिंग्स",
+      desc: "अपनी प्राथमिकताएं और खाता सेटिंग्स प्रबंधित करें।",
+      general: "सामान्य प्राथमिकताएं",
+      language: "भाषा",
+      defaultLoc: "डिफ़ॉल्ट स्थान",
+      updateLoc: "नए मृदा परीक्षण के माध्यम से अपडेट करें।",
+      notifications: "सूचनाएं और गोपनीयता",
+      push: "पुश सूचनाएं",
+      pushDesc: "मौसम अलर्ट और फसल सुझाव",
+      privacy: "डेटा गोपनीयता",
+      privacyDesc: "डेटा साझाकरण प्रबंधित करें"
+    }
+  },
+  Telugu: {
+    app: {
+      title: "అగ్రిమైండ్",
+      subtitle: "ప్రిసిషన్ అగ్రికల్చర్",
+      newSoilTest: "కొత్త మట్టి పరీక్ష",
+      dashboard: "డ్యాష్‌బోర్డ్",
+      soilAnalysis: "మట్టి విశ్లేషణ",
+      recommendations: "పంట సూచనలు",
+      weather: "వాతావరణం",
+      chatbot: "చాట్‌బాట్",
+      settings: "సెట్టింగ్‌లు",
+      language: "భాష",
+      region: "ప్రాంతం",
+      notSet: "సెట్ చేయబడలేదు"
+    },
+    dashboard: {
+      optimalWindow: "నాటడానికి అనుకూల సమయం ఆసన్నమైంది",
+      optimalDesc: "ఇటీవలి మట్టి పరీక్షలు మరియు వర్షపాతం ఆధారంగా, రాబోయే 72 గంటల్లో పొలాలను సిద్ధం చేయడం ద్వారా అధిక దిగుబడి సాధించవచ్చు.",
+      topCrops: "అత్యుత్తమ పంట సూచనలు",
+      runSoilTest: "మట్టి పరీక్షను ప్రారంభించండి",
+      updatedJustNow: "ఇప్పుడే నవీకరించబడింది",
+      suitability: "అనుకూలత",
+      topMatch: "ఉత్తమ సరిపోలిక",
+      viewTimeline: "వృద్ధి సమయరేఖను చూడండి",
+      marketPricing: "మార్కెట్ ధరలు",
+      viewActionPlan: "కార్యాచరణ ప్రణాళికను చూడండి",
+      noData: "ఇటీవలి మట్టి పరీక్ష డేటా అందుబాటులో లేదు.",
+      startAnalysis: "విశ్లేషణను ప్రారంభించండి",
+      aiAssistant: "AI వ్యవసాయ సహాయకుడు",
+      criticalAction: "ముఖ్యమైన కార్యాచరణ ప్రణాళిక",
+      why: "ఎందుకు"
+    },
+    soil: {
+      title: "కొత్త మట్టి విశ్లేషణ",
+      desc: "మీ పరిస్థితులకు అనుగుణంగా AI-ఆధారిత పంట సూచనలను పొందడానికి మీ పొలం వివరాలను నమోదు చేయండి.",
+      composition: "మట్టి కూర్పు",
+      nitrogen: "నైట్రోజన్ (N)",
+      phosphorus: "భాస్వరం (P)",
+      potassium: "పొటాషియం (K)",
+      ph: "pH స్థాయి",
+      climate: "వాతావరణం & ప్రాంతం",
+      temp: "ఉష్ణోగ్రత (°C)",
+      humidity: "తేమ (%)",
+      rainfall: "వర్షపాతం (mm)",
+      location: "ప్రాంతం",
+      season: "ఋతువు",
+      selectSeason: "ఋతువును ఎంచుకోండి",
+      kharif: "ఖరీఫ్ (వర్షాకాలం)",
+      rabi: "రబీ (శీతాకాలం)",
+      zaid: "జైద్ (వేసవి)",
+      annual: "వార్షిక",
+      generate: "AI సూచనలను పొందండి",
+      analyzing: "డేటాను విశ్లేషిస్తోంది..."
+    },
+    recs: {
+      title: "AI పంట సూచనలు",
+      translation: "అనువాదం",
+      analyzing: "న్యూరల్ నెట్‌వర్క్ డేటాను విశ్లేషిస్తోంది...",
+      analyzingDesc: "మీ మట్టి ప్రొఫైల్‌ను చారిత్రక దిగుబడి నమూనాలతో పోలుస్తోంది.",
+      noRecs: "ఇంకా ఎలాంటి సూచనలు లేవు",
+      noRecsDesc: "పంట సూచనలు పొందడానికి దయచేసి ముందుగా మట్టి విశ్లేషణను పూర్తి చేయండి.",
+      topMatch: "ఉత్తమ సరిపోలిక",
+      suitability: "అనుకూలత",
+      whyCrop: "ఈ పంట ఎందుకు?",
+      actionPlan: "కార్యాచరణ ప్రణాళిక",
+      viewFull: "పూర్తి విశ్లేషణను చూడండి"
+    },
+    weather: {
+      title: "వ్యవసాయ వాతావరణ సూచన",
+      loading: "వాతావరణ డేటా లోడ్ అవుతోంది",
+      error: "వాతావరణ డేటా అందుబాటులో లేదు. దయచేసి మట్టి విశ్లేషణలో సరైన ప్రాంతాన్ని అందించండి.",
+      heatWarning: "అధిక ఉష్ణోగ్రత హెచ్చరిక",
+      heatDesc: "నీటిపారుదలని పెంచండి. నిరంతర అధిక ఉష్ణోగ్రతలు అంచనా వేయబడ్డాయి.",
+      current: "ప్రస్తుత పరిస్థితులు",
+      humidity: "తేమ",
+      wind: "గాలి",
+      precip: "వర్షపాతం",
+      uvMax: "UV గరిష్టం",
+      et: "భాష్పోత్సేకం",
+      etDesc: "అంచనా వేసిన నీటి నష్టం. తదనుగుణంగా నీటిపారుదలని సర్దుబాటు చేయండి.",
+      soilTemp: "మట్టి ఉష్ణోగ్రత",
+      soilTempDesc: "విత్తనాల అంకురోత్పత్తికి అనుకూలం.",
+      solar: "సౌర వికిరణం",
+      solarDesc: "అధిక కిరణజన్య సంయోగ సామర్థ్యం",
+      outlook: "7-రోజుల వ్యవసాయ దృక్పథం",
+      today: "నేడు",
+      rainExpected: "వర్షం ఆశించబడుతోంది",
+      optimalWork: "పొలం పనికి అనుకూల పరిస్థితులు"
+    },
+    chat: {
+      title: "AI వ్యవసాయ సహాయకుడు",
+      desc: "పంటలు, వాతావరణం లేదా మట్టి పరీక్ష గురించి అడగండి",
+      analyzing: "డేటాను విశ్లేషిస్తోంది...",
+      placeholder: "మీ ప్రశ్నను అడగండి"
+    },
+    settings: {
+      title: "సెట్టింగ్‌లు",
+      desc: "మీ ప్రాధాన్యతలు మరియు ఖాతా సెట్టింగ్‌లను నిర్వహించండి.",
+      general: "సాధారణ ప్రాధాన్యతలు",
+      language: "భాష",
+      defaultLoc: "డిఫాల్ట్ ప్రాంతం",
+      updateLoc: "కొత్త మట్టి పరీక్ష ద్వారా నవీకరించండి.",
+      notifications: "నోటిఫికేషన్‌లు & గోప్యత",
+      push: "పుష్ నోటిఫికేషన్‌లు",
+      pushDesc: "వాతావరణ హెచ్చరికలు మరియు పంట సూచనలు",
+      privacy: "డేటా గోప్యత",
+      privacyDesc: "డేటా భాగస్వామ్యాన్ని నిర్వహించండి"
+    }
+  }
+};
