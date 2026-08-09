@@ -5,7 +5,7 @@ import { GoogleGenAI, Type } from '@google/genai';
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = process.env.PORT || 3000;
 
   app.use(express.json());
 
@@ -13,8 +13,8 @@ async function startServer() {
   const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
   const fallbackModels = [
-    'gemini-3.5-flash',
-    'gemini-2.5-flash',
+    'gemini-3.6-flash',
+    'gemini-3.1-pro-preview',
     'gemini-3.1-flash-lite'
   ];
 
@@ -73,7 +73,7 @@ async function startServer() {
       `;
 
       const response = await generateWithRetry({
-        model: 'gemini-3.5-flash',
+        model: 'gemini-3.6-flash',
         contents: prompt,
         config: {
           responseMimeType: 'application/json',
@@ -129,7 +129,7 @@ async function startServer() {
       Keep answers concise, actionable, and friendly.`;
 
       const response = await generateWithRetry({
-        model: 'gemini-3.5-flash',
+        model: 'gemini-3.6-flash',
         contents: [
            { role: 'user', parts: [{ text: systemPrompt + "\n\nUser message: " + message }] }
         ]
