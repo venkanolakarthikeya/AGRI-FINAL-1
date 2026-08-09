@@ -32,9 +32,13 @@ export function Recommendations({ recommendations, isLoading, language, soilCont
         })
       });
       const data = await response.json();
-      setFullAnalysis(data.reply || "Failed to generate analysis.");
+      if (!response.ok) {
+        setFullAnalysis(data.error || data.details || "Failed to generate analysis. Server returned an error.");
+      } else {
+        setFullAnalysis(data.reply || "Failed to generate analysis.");
+      }
     } catch (e) {
-      setFullAnalysis("Failed to load full analysis.");
+      setFullAnalysis("Failed to load full analysis. Network or parsing error.");
     } finally {
       setIsAnalyzing(false);
     }

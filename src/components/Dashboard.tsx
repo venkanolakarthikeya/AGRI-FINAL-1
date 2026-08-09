@@ -44,9 +44,13 @@ export function Dashboard({ setCurrentView, recommendations, language, soilConte
         })
       });
       const data = await response.json();
-      setModalData({ title, content: data.reply || "Failed to generate analysis." });
+      if (!response.ok) {
+        setModalData({ title, content: data.error || data.details || "Failed to generate analysis. Server returned an error." });
+      } else {
+        setModalData({ title, content: data.reply || "Failed to generate analysis." });
+      }
     } catch (e) {
-      setModalData({ title, content: "Failed to load analysis." });
+      setModalData({ title, content: "Failed to load analysis. Network or parsing error." });
     } finally {
       setIsAnalyzing(false);
     }
