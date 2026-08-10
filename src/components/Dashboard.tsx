@@ -169,7 +169,7 @@ export function Dashboard({ setCurrentView, recommendations, language, soilConte
                      </div>
                    </>
                 ) : (
-                   <p className="text-slate-400 text-sm">Complete a soil analysis to unlock AI-powered insights for your specific field conditions.</p>
+                   <p className="text-slate-400 text-sm">{t(language, "dashboard.unlockInsights")}</p>
                 )}
              </div>
            </div>
@@ -190,7 +190,7 @@ export function Dashboard({ setCurrentView, recommendations, language, soilConte
               {isAnalyzing ? (
                 <div className="flex flex-col items-center justify-center py-12 space-y-4">
                   <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
-                  <p className="text-slate-500 font-medium">Generating insights...</p>
+                  <p className="text-slate-500 font-medium">{t(language, "dashboard.generatingInsights")}</p>
                 </div>
               ) : (
                 <div className="prose prose-emerald prose-sm max-w-none text-slate-700 whitespace-pre-wrap">
@@ -200,7 +200,7 @@ export function Dashboard({ setCurrentView, recommendations, language, soilConte
             </div>
             <div className="p-4 border-t border-slate-100 bg-slate-50 flex justify-end">
               <button onClick={() => setModalData(null)} className="px-6 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl font-bold text-sm transition-colors">
-                Close
+                {t(language, "dashboard.close")}
               </button>
             </div>
           </div>

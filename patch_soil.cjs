@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+const fs = require('fs');
+
+const code = `import React, { useState } from 'react';
 import { ViewState, SoilData, Recommendation, Language } from '../types';
 import { Loader2, TestTube } from 'lucide-react';
 import { t } from '../translations';
@@ -35,11 +37,11 @@ export function SoilForm({ soilData, setSoilData, setRecommendations, setCurrent
        const num = Number(value);
        const limit = limits[name];
        if (num > limit.max) {
-           setFieldErrors(prev => ({ ...prev, [name]: language === 'Hindi' ? `अधिकतम मान ${limit.max} है` : language === 'Telugu' ? `గరిష్ట విలువ ${limit.max}` : `Maximum value is ${limit.max}` }));
+           setFieldErrors(prev => ({ ...prev, [name]: language === 'Hindi' ? \`अधिकतम मान \${limit.max} है\` : language === 'Telugu' ? \`గరిష్ట విలువ \${limit.max}\` : \`Maximum value is \${limit.max}\` }));
            return; 
        }
        if (num < limit.min) {
-           setFieldErrors(prev => ({ ...prev, [name]: language === 'Hindi' ? `न्यूनतम मान ${limit.min} है` : language === 'Telugu' ? `కనిష్ట విలువ ${limit.min}` : `Minimum value is ${limit.min}` }));
+           setFieldErrors(prev => ({ ...prev, [name]: language === 'Hindi' ? \`न्यूनतम मान \${limit.min} है\` : language === 'Telugu' ? \`కనిష్ట విలువ \${limit.min}\` : \`Minimum value is \${limit.min}\` }));
            return;
        }
     }
@@ -193,3 +195,6 @@ export function SoilForm({ soilData, setSoilData, setRecommendations, setCurrent
     </div>
   );
 }
+`;
+
+fs.writeFileSync('src/components/SoilForm.tsx', code);

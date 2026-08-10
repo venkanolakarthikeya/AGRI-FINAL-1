@@ -5,7 +5,7 @@ import { GoogleGenAI, Type } from '@google/genai';
 
 async function startServer() {
   const app = express();
-  const PORT = process.env.PORT || 3000;
+  const PORT = parseInt(process.env.PORT as string, 10) || 3000;
 
   app.use(express.json());
 
@@ -13,8 +13,9 @@ async function startServer() {
   const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
   const fallbackModels = [
-    'gemini-3.6-flash',
-    'gemini-3.1-pro-preview',
+    'gemini-3.5-flash',
+    'gemini-pro-latest',
+    'gemini-flash-latest',
     'gemini-3.1-flash-lite'
   ];
 
@@ -56,7 +57,7 @@ async function startServer() {
         Location: ${location}
         Season: ${season}
         
-        CRITICAL INSTRUCTION: You MUST translate ALL output text (including cropName, reason, and actionPlan) into ${language || 'English'}.
+        CRITICAL INSTRUCTION: You MUST translate ALL output text (including cropName, reason, and actionPlan) natively into ${language || 'English'} using local terminology familiar to farmers. If the language is Hindi or Telugu, you MUST use the native script (Devanagari or Telugu) for all string fields.
         
         Provide the response strictly in JSON format matching this schema:
         {
@@ -73,7 +74,7 @@ async function startServer() {
       `;
 
       const response = await generateWithRetry({
-        model: 'gemini-3.6-flash',
+        model: 'gemini-3.5-flash',
         contents: prompt,
         config: {
           responseMimeType: 'application/json',
@@ -122,14 +123,10 @@ async function startServer() {
     try {
       const { message, context, language } = req.body;
       
-      const systemPrompt = `You are an expert agricultural assistant bot named AgriSmart AI. 
-       CRITICAL INSTRUCTION: You MUST translate and respond strictly in ${language || 'English'}. 
-       Even if the user asks in English, your final response MUST be fully written in ${language || 'English'}.
-       Context about the farmer's current soil/location: ${JSON.stringify(context)}.
-      Keep answers concise, actionable, and friendly.`;
+      const systemPrompt = `You are AgriSmart AI, an expert agricultural assistant dedicated to helping farmers.\n        CRITICAL INSTRUCTION: You MUST communicate fluently in the user's preferred language: ${language || 'English'}.\n        If the preferred language is Hindi or Telugu, you MUST write your entire response natively in that language (using Devanagari or Telugu script).\n        Understand that farmers may ask questions using local, regional terms or Romanized Hindi/Telugu (e.g., \"khad\", \"eruvulu\").\n        Keep your answers concise, practical, actionable, and friendly. Avoid overly complex scientific jargon; speak like a knowledgeable local agronomist.\n        Context about the farmer's current soil/location: ${JSON.stringify(context)}.`;
 
       const response = await generateWithRetry({
-        model: 'gemini-3.6-flash',
+        model: 'gemini-3.5-flash',
         contents: [
            { role: 'user', parts: [{ text: systemPrompt + "\n\nUser message: " + message }] }
         ]

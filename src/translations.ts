@@ -35,6 +35,9 @@ const translations: Record<Language, any> = {
       notSet: "Not Set"
     },
     dashboard: {
+      unlockInsights: "Complete a soil analysis to unlock AI-powered insights for your specific field conditions.",
+      generatingInsights: "Generating insights...",
+      close: "Close",
       optimalWindow: "Optimal planting window approaching",
       optimalDesc: "Based on recent soil tests and forecasted rainfall, preparing fields for cultivation within the next 72 hours will maximize early growth potential.",
       topCrops: "Top Recommended Crops",
@@ -109,12 +112,18 @@ const translations: Record<Language, any> = {
       optimalWork: "Optimal conditions for field work"
     },
     chat: {
+      welcome: "Hello! I am your AgriSmart AI assistant. How can I help you today?",
+      floatingWelcome: "Hello! I am your AgriSmart AI assistant. I'm here to help with any doubts you have while using the app.",
       title: "AI Farming Assistant",
       desc: "Ask about crops, weather, or your soil test in",
       analyzing: "Analyzing data...",
       placeholder: "Ask a question in"
     },
     settings: {
+      profile: "Profile Details",
+      name: "Name",
+      email: "Email",
+      phone: "Phone Number",
       title: "Settings",
       desc: "Manage your preferences and account settings.",
       general: "General Preferences",
@@ -144,6 +153,9 @@ const translations: Record<Language, any> = {
       notSet: "सेट नहीं है"
     },
     dashboard: {
+      unlockInsights: "अपनी विशिष्ट खेत स्थितियों के लिए AI-संचालित अंतर्दृष्टि प्राप्त करने के लिए मृदा परीक्षण पूरा करें।",
+      generatingInsights: "अंतर्दृष्टि उत्पन्न की जा रही है...",
+      close: "बंद करें",
       optimalWindow: "बुवाई का सही समय आ रहा है",
       optimalDesc: "हाल के मृदा परीक्षण और अनुमानित बारिश के आधार पर, अगले 72 घंटों में खेत तैयार करने से अधिकतम लाभ होगा।",
       topCrops: "शीर्ष अनुशंसित फसलें",
@@ -218,12 +230,18 @@ const translations: Record<Language, any> = {
       optimalWork: "खेत के काम के लिए अनुकूल परिस्थितियां"
     },
     chat: {
+      welcome: "नमस्ते! मैं आपका एग्रीस्मार्ट एआई सहायक हूं। आज मैं आपकी कैसे मदद कर सकता हूं?",
+      floatingWelcome: "नमस्ते! मैं आपका एग्रीस्मार्ट एआई सहायक हूं। ऐप का उपयोग करते समय आपके किसी भी संदेह में मदद करने के लिए मैं यहां हूं।",
       title: "एआई कृषि सहायक",
       desc: "फसलों, मौसम या मृदा परीक्षण के बारे में पूछें",
       analyzing: "डेटा का विश्लेषण किया जा रहा है...",
       placeholder: "अपना प्रश्न पूछें"
     },
     settings: {
+      profile: "प्रोफ़ाइल विवरण",
+      name: "नाम",
+      email: "ईमेल",
+      phone: "फ़ोन नंबर",
       title: "सेटिंग्स",
       desc: "अपनी प्राथमिकताएं और खाता सेटिंग्स प्रबंधित करें।",
       general: "सामान्य प्राथमिकताएं",
@@ -253,6 +271,9 @@ const translations: Record<Language, any> = {
       notSet: "సెట్ చేయబడలేదు"
     },
     dashboard: {
+      unlockInsights: "మీ నిర్దిష్ట క్షేత్ర పరిస్థితుల కోసం AI-ఆధారిత అంతర్దృష్టులను అన్‌లాక్ చేయడానికి మట్టి విశ్లేషణను పూర్తి చేయండి.",
+      generatingInsights: "అంతర్దృష్టులను రూపొందిస్తోంది...",
+      close: "మూసివేయు",
       optimalWindow: "నాటడానికి అనుకూల సమయం ఆసన్నమైంది",
       optimalDesc: "ఇటీవలి మట్టి పరీక్షలు మరియు వర్షపాతం ఆధారంగా, రాబోయే 72 గంటల్లో పొలాలను సిద్ధం చేయడం ద్వారా అధిక దిగుబడి సాధించవచ్చు.",
       topCrops: "అత్యుత్తమ పంట సూచనలు",
@@ -327,12 +348,18 @@ const translations: Record<Language, any> = {
       optimalWork: "పొలం పనికి అనుకూల పరిస్థితులు"
     },
     chat: {
+      welcome: "నమస్కారం! నేను మీ అగ్రిస్మార్ట్ AI సహాయకుడిని. ఈ రోజు నేను మీకు ఎలా సహాయం చేయగలను?",
+      floatingWelcome: "నమస్కారం! నేను మీ అగ్రిస్మార్ట్ AI సహాయకుడిని. యాప్‌ని ఉపయోగిస్తున్నప్పుడు మీకు ఏవైనా సందేహాలు ఉంటే సహాయం చేయడానికి నేను ఇక్కడ ఉన్నాను.",
       title: "AI వ్యవసాయ సహాయకుడు",
       desc: "పంటలు, వాతావరణం లేదా మట్టి పరీక్ష గురించి అడగండి",
       analyzing: "డేటాను విశ్లేషిస్తోంది...",
       placeholder: "మీ ప్రశ్నను అడగండి"
     },
     settings: {
+      profile: "ప్రొఫైల్ వివరాలు",
+      name: "పేరు",
+      email: "ఇమెయిల్",
+      phone: "ఫోన్ నంబర్",
       title: "సెట్టింగ్‌లు",
       desc: "మీ ప్రాధాన్యతలు మరియు ఖాతా సెట్టింగ్‌లను నిర్వహించండి.",
       general: "సాధారణ ప్రాధాన్యతలు",
