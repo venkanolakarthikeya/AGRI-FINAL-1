@@ -12,7 +12,11 @@ async function startServer() {
   // Initialize Gemini API
   const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-  const fallbackModels = ['gemini-flash-latest', 'gemini-pro-latest'];
+  const fallbackModels = [
+    'gemini-3.5-flash',
+    'gemini-flash-latest',
+    'gemini-3.5-flash-lite'
+  ];
 
   async function generateWithRetry(modelArgs: any) {
     let attempt = 0;
@@ -26,8 +30,8 @@ async function startServer() {
         const isRateLimit = error?.status === 429 || error?.status === 'RESOURCE_EXHAUSTED' || error?.message?.includes('429');
         if (isUnavailable || isRateLimit) {
           if (attempt < fallbackModels.length) {
-            console.warn(`[Gemini API] Error 503/429 on ${fallbackModels[attempt - 1]}. Switching to ${fallbackModels[attempt]}...`);
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            console.log(`[Gemini API] Rate limit paused on ${fallbackModels[attempt - 1]}. Retrying with ${fallbackModels[attempt]} in background...`);
+            await new Promise(resolve => setTimeout(resolve, 6000));
             continue;
           }
         }

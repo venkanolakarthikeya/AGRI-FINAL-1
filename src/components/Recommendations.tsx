@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Markdown from 'react-markdown';
 import { Recommendation, Language, SoilData, ViewState } from '../types';
-import { Sprout, Loader2, CheckCircle2, X, Edit2 } from 'lucide-react';
+import { Sprout, Loader2, CheckCircle2, X, Edit2, Volume2, Square } from 'lucide-react';
 import { t } from '../translations';
 
 interface RecommendationsProps {
@@ -16,6 +16,35 @@ export function Recommendations({ recommendations, isLoading, language, soilCont
   const [selectedCrop, setSelectedCrop] = useState<Recommendation | null>(null);
   const [fullAnalysis, setFullAnalysis] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+
+  const handleCloseModal = () => {
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    setIsSpeaking(false);
+    setSelectedCrop(null);
+  };
+
+  const toggleSpeech = () => {
+    if (!window.speechSynthesis || !fullAnalysis) return;
+    
+    if (isSpeaking) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+    } else {
+      const plainText = fullAnalysis.replace(/[#*`_]/g, '');
+      const utterance = new SpeechSynthesisUtterance(plainText);
+      
+      if (language === 'Hindi') utterance.lang = 'hi-IN';
+      else if (language === 'Telugu') utterance.lang = 'te-IN';
+      else utterance.lang = 'en-US';
+      
+      utterance.onend = () => setIsSpeaking(false);
+      utterance.onerror = () => setIsSpeaking(false);
+      
+      window.speechSynthesis.speak(utterance);
+      setIsSpeaking(true);
+    }
+  };
 
   const handleViewFull = async (crop: Recommendation) => {
     setSelectedCrop(crop);
@@ -138,7 +167,7 @@ export function Recommendations({ recommendations, isLoading, language, soilCont
           <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[80vh] flex flex-col shadow-2xl overflow-hidden">
             <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-emerald-600 text-white">
               <h3 className="font-bold text-lg">{selectedCrop.cropName} - {t(language, 'recs.viewFull')}</h3>
-              <button onClick={() => setSelectedCrop(null)} className="text-emerald-100 hover:text-white transition-colors">
+              <button onClick={handleCloseModal} className="text-emerald-100 hover:text-white transition-colors">
                 <X className="w-6 h-6" />
               </button>
             </div>
@@ -156,8 +185,18 @@ export function Recommendations({ recommendations, isLoading, language, soilCont
                 </div>
               )}
             </div>
-            <div className="p-4 border-t border-slate-100 bg-slate-50 flex justify-end">
-              <button onClick={() => setSelectedCrop(null)} className="px-6 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl font-bold text-sm transition-colors">
+            <div className="p-4 border-t border-slate-100 bg-slate-50 flex justify-end items-center">
+              {!isAnalyzing && fullAnalysis && (
+                <button onClick={toggleSpeech} className="px-4 py-2 bg-emerald-100 hover:bg-emerald-200 text-emerald-700 rounded-xl font-bold text-sm transition-colors flex items-center gap-2 mr-auto">
+                  {isSpeaking ? (
+                    <><Square className="w-4 h-4" /> {t(language, 'recs.stopReading')}</>
+                  ) : (
+                    <><Volume2 className="w-4 h-4" /> {t(language, 'recs.readAloud')}</>
+                  )}
+                </button>
+              )}
+
+              <button onClick={handleCloseModal} className="px-6 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl font-bold text-sm transition-colors">
                 Close
               </button>
             </div>

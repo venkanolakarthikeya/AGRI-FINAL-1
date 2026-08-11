@@ -89,7 +89,9 @@ const translations: Record<Language, any> = {
       suitability: "Suitability",
       whyCrop: "Why this crop?",
       actionPlan: "Action Plan",
-      viewFull: "View Full Analysis"
+      viewFull: "View Full Analysis",
+      readAloud: "Read Aloud",
+      stopReading: "Stop Reading"
     },
     weather: {
       title: "Agricultural Weather Forecast",
@@ -209,7 +211,9 @@ const translations: Record<Language, any> = {
       suitability: "उपयुक्तता",
       whyCrop: "यह फसल क्यों?",
       actionPlan: "कार्य योजना",
-      viewFull: "पूर्ण विश्लेषण देखें"
+      viewFull: "पूर्ण विश्लेषण देखें",
+      readAloud: "जोर से पढ़ें",
+      stopReading: "पढ़ना बंद करें"
     },
     weather: {
       title: "कृषि मौसम पूर्वानुमान",
@@ -329,7 +333,9 @@ const translations: Record<Language, any> = {
       suitability: "అనుకూలత",
       whyCrop: "ఈ పంట ఎందుకు?",
       actionPlan: "కార్యాచరణ ప్రణాళిక",
-      viewFull: "పూర్తి విశ్లేషణను చూడండి"
+      viewFull: "పూర్తి విశ్లేషణను చూడండి",
+      readAloud: "చదివి వినిపించండి",
+      stopReading: "చదవడం ఆపండి"
     },
     weather: {
       title: "వ్యవసాయ వాతావరణ సూచన",
