@@ -1,6 +1,11 @@
 {
   "name": "AgriSmart AI",
   "description": "An AI-powered personalized farming assistant that combines soil conditions, weather, location and farmer queries to recommend suitable crops.",
-  "requestFramePermissions": ["microphone"],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "requestFramePermissions": [
+    "microphone",
+    "geolocation"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
 }

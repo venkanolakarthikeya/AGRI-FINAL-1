@@ -6,6 +6,7 @@ interface LocationAutocompleteProps {
   location: string;
   setLocation: (loc: string) => void;
   placeholder?: string;
+  onSelectCoordinates?: (lat: string, lon: string) => void;
 }
 
 interface NominatimPlace {
@@ -14,9 +15,10 @@ interface NominatimPlace {
   lat: string;
   lon: string;
   name?: string;
+  address?: Record<string, string>;
 }
 
-export function LocationAutocomplete({ location, setLocation, placeholder, language = "English" }: LocationAutocompleteProps) {
+export function LocationAutocomplete({ location, setLocation, placeholder, language = "English", onSelectCoordinates }: LocationAutocompleteProps) {
   const [query, setQuery] = useState(location);
   const [suggestions, setSuggestions] = useState<NominatimPlace[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -33,6 +35,11 @@ export function LocationAutocomplete({ location, setLocation, placeholder, langu
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    // Sync the internal query state if the parent updates the location directly
+    setQuery(location);
+  }, [location]);
 
   useEffect(() => {
     if (!query || query === location) {
@@ -69,11 +76,21 @@ export function LocationAutocomplete({ location, setLocation, placeholder, langu
   }, [query, location]);
 
   const handleSelect = (place: NominatimPlace) => {
-    // Using display_name which contains the full formatted address
-    const address = place.display_name;
+    let address = place.display_name;
+    if (place.address) {
+      const addr = place.address;
+      const local = addr.village || addr.town || addr.city || addr.hamlet || addr.county || addr.suburb || '';
+      const region = addr.state_district || addr.state || '';
+      const shortName = [local, region].filter(Boolean).join(', ');
+      if (shortName) address = shortName;
+    }
+    
     setQuery(address);
     setLocation(address);
     setShowDropdown(false);
+    if (onSelectCoordinates) {
+      onSelectCoordinates(place.lat, place.lon);
+    }
   };
 
   return (

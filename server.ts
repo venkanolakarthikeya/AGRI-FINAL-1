@@ -12,12 +12,7 @@ async function startServer() {
   // Initialize Gemini API
   const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-  const fallbackModels = [
-    'gemini-3.5-flash',
-    'gemini-pro-latest',
-    'gemini-flash-latest',
-    'gemini-3.1-flash-lite'
-  ];
+  const fallbackModels = ['gemini-flash-latest', 'gemini-pro-latest'];
 
   async function generateWithRetry(modelArgs: any) {
     let attempt = 0;
@@ -49,11 +44,11 @@ async function startServer() {
       
       const prompt = `
         You are an expert AI agricultural assistant. Based on the following data, recommend the top 3 crops.
-        Soil N: ${n}, P: ${p}, K: ${k}
+        Soil N: ${n || "Not provided (estimate based on location)"}, P: ${p || "Not provided"}, K: ${k || "Not provided"}
         Temperature: ${temperature}°C
         Humidity: ${humidity}%
         Rainfall: ${rainfall}mm
-        pH Level: ${ph}
+        pH Level: ${ph || "Not provided (estimate based on location)"}
         Location: ${location}
         Season: ${season}
         
@@ -74,7 +69,7 @@ async function startServer() {
       `;
 
       const response = await generateWithRetry({
-        model: 'gemini-3.5-flash',
+        model: 'gemini-flash-latest',
         contents: prompt,
         config: {
           responseMimeType: 'application/json',
@@ -126,7 +121,7 @@ async function startServer() {
       const systemPrompt = `You are AgriSmart AI, an expert agricultural assistant dedicated to helping farmers.\n        CRITICAL INSTRUCTION: You MUST communicate fluently in the user's preferred language: ${language || 'English'}.\n        If the preferred language is Hindi or Telugu, you MUST write your entire response natively in that language. IF THE PREFERRED LANGUAGE IS ENGLISH, YOU MUST STRICTLY OUTPUT ONLY IN ENGLISH, regardless of the user's location or regional terms.\n        Understand that farmers may ask questions using local, regional terms or Romanized Hindi/Telugu (e.g., \"khad\", \"eruvulu\").\n        Keep your answers concise, practical, actionable, and friendly. Avoid overly complex scientific jargon; speak like a knowledgeable local agronomist.\n        Context about the farmer's current soil/location: ${JSON.stringify(context)}.`;
 
       const response = await generateWithRetry({
-        model: 'gemini-3.5-flash',
+        model: 'gemini-flash-latest',
         contents: [
            { role: 'user', parts: [{ text: systemPrompt + "\n\nUser message: " + message }] }
         ]

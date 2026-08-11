@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+const fs = require('fs');
+
+const code = `import React, { useState } from 'react';
 import { ViewState, SoilData, Recommendation, Language } from '../types';
 import { Loader2, TestTube, MapPin } from 'lucide-react';
 import { t } from '../translations';
@@ -19,23 +21,6 @@ export function SoilForm({ soilData, setSoilData, setRecommendations, setCurrent
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [isLocating, setIsLocating] = useState(false);
 
-  const fetchWeather = async (lat: number | string, lon: number | string) => {
-    try {
-      const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,precipitation`);
-      const weatherData = await weatherRes.json();
-      if (weatherData && weatherData.current) {
-        setSoilData(prev => ({
-          ...prev,
-          temperature: prev.temperature || String(weatherData.current.temperature_2m),
-          humidity: prev.humidity || String(weatherData.current.relative_humidity_2m),
-          rainfall: prev.rainfall || String(Math.round(weatherData.current.precipitation * 30) || 100),
-        }));
-      }
-    } catch (err) {
-      console.error("Failed to fetch weather", err);
-    }
-  };
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     
@@ -43,21 +28,18 @@ export function SoilForm({ soilData, setSoilData, setRecommendations, setCurrent
        n: { min: 0, max: 500 }, 
        p: { min: 0, max: 500 }, 
        k: { min: 0, max: 500 }, 
-       ph: { min: 0, max: 14 },
-       temperature: { min: -10, max: 60 },
-       humidity: { min: 0, max: 100 },
-       rainfall: { min: 0, max: 5000 }
+       ph: { min: 0, max: 14 }
     };
     
     if (limits[name] && value !== '' && value !== '-') {
        const num = Number(value);
        const limit = limits[name];
        if (num > limit.max) {
-           setFieldErrors(prev => ({ ...prev, [name]: language === 'Hindi' ? `अधिकतम मान ${limit.max} है` : language === 'Telugu' ? `గరిష్ట విలువ ${limit.max}` : `Maximum value is ${limit.max}` }));
+           setFieldErrors(prev => ({ ...prev, [name]: language === 'Hindi' ? \`अधिकतम मान \${limit.max} है\` : language === 'Telugu' ? \`గరిష్ట విలువ \${limit.max}\` : \`Maximum value is \${limit.max}\` }));
            return;
        }
        if (num < limit.min) {
-           setFieldErrors(prev => ({ ...prev, [name]: language === 'Hindi' ? `न्यूनतम मान ${limit.min} है` : language === 'Telugu' ? `కనిష్ట విలువ ${limit.min}` : `Minimum value is ${limit.min}` }));
+           setFieldErrors(prev => ({ ...prev, [name]: language === 'Hindi' ? \`न्यूनतम मान \${limit.min} है\` : language === 'Telugu' ? \`కనిష్ట విలువ \${limit.min}\` : \`Minimum value is \${limit.min}\` }));
            return;
        }
     }
@@ -72,46 +54,17 @@ export function SoilForm({ soilData, setSoilData, setRecommendations, setCurrent
       return;
     }
     setIsLocating(true);
-    const fallbackToIP = async () => {
-      try {
-        const ipRes = await fetch('https://ipinfo.io/json');
-        const ipData = await ipRes.json();
-        if (ipData && ipData.city) {
-          const locName = ipData.region ? `${ipData.city}, ${ipData.region}` : ipData.city;
-          setSoilData(prev => ({ ...prev, location: locName }));
-          if (ipData.loc) {
-            const [lat, lon] = ipData.loc.split(',');
-            await fetchWeather(lat, lon);
-          }
-        } else {
-          setError(language === 'Hindi' ? "स्थान प्राप्त करने में विफल।" : language === 'Telugu' ? "స్థానాన్ని పొందడంలో విఫలమైంది." : "Failed to get location.");
-        }
-      } catch (err) {
-        setError(language === 'Hindi' ? "स्थान प्राप्त करने में विफल।" : language === 'Telugu' ? "స్థానాన్ని పొందడంలో విఫలమైంది." : "Failed to get location.");
-      } finally {
-        setIsLocating(false);
-      }
-    };
-
     navigator.geolocation.getCurrentPosition(async (position) => {
       try {
         const { latitude, longitude } = position.coords;
-        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=14&addressdetails=1&accept-language=${language === 'Hindi' ? 'hi' : language === 'Telugu' ? 'te' : 'en'}`, {
-          headers: {
-            'User-Agent': 'AgriApp/1.0 (hackathon)'
-          }
-        });
+        const res = await fetch(\`https://nominatim.openstreetmap.org/reverse?format=json&lat=\${latitude}&lon=\${longitude}&zoom=10&accept-language=\${language === 'Hindi' ? 'hi' : language === 'Telugu' ? 'te' : 'en'}\`);
         const data = await res.json();
-        if (data && data.address) {
-          const addr = data.address;
-          const local = addr.village || addr.town || addr.city || addr.hamlet || addr.county || addr.suburb || '';
-          const region = addr.state_district || addr.state || '';
-          const shortName = [local, region].filter(Boolean).join(', ');
-          setSoilData(prev => ({ ...prev, location: shortName || data.display_name }));
-        } else if (data && data.display_name) {
-          setSoilData(prev => ({ ...prev, location: data.display_name }));
+        if (data && data.display_name) {
+          const parts = data.display_name.split(',');
+          // Just grab a readable part of the location
+          const shortName = parts.length > 1 ? parts[0] + ', ' + parts[1] : data.display_name;
+          setSoilData(prev => ({ ...prev, location: shortName }));
         }
-        await fetchWeather(latitude, longitude);
       } catch (err) {
         console.error(err);
         setError("Failed to fetch location name.");
@@ -119,8 +72,8 @@ export function SoilForm({ soilData, setSoilData, setRecommendations, setCurrent
         setIsLocating(false);
       }
     }, (err) => {
-      console.warn("GPS failed, falling back to IP:", err.message);
-      fallbackToIP();
+      setIsLocating(false);
+      setError(err.message || "Failed to get location.");
     });
   };
 
@@ -136,46 +89,27 @@ export function SoilForm({ soilData, setSoilData, setRecommendations, setCurrent
         throw new Error(language === 'Hindi' ? "कृपया एक स्थान दर्ज करें" : language === 'Telugu' ? "దయచేసి స్థానాన్ని నమోదు చేయండి" : "Please provide a location");
       }
       
-            let temp = soilData.temperature ? Number(soilData.temperature) : null;
-      let hum = soilData.humidity ? Number(soilData.humidity) : null;
-      let rain = soilData.rainfall ? Number(soilData.rainfall) : null;
+      const geoRes = await fetch(\`https://nominatim.openstreetmap.org/search?q=\${encodeURIComponent(soilData.location)}&format=json&limit=1&accept-language=en\`);
+      const geoData = await geoRes.json();
       
-      if (temp === null || hum === null || rain === null) {
-        const geoRes = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(soilData.location)}&format=json&limit=1&accept-language=en`, {
-          headers: {
-            'User-Agent': 'AgriApp/1.0 (hackathon)'
-          }
-        });
-        const geoData = await geoRes.json();
-        
-        if (geoData && geoData.length > 0) {
-          const { lat, lon } = geoData[0];
-          const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,precipitation`);
-          const weatherData = await weatherRes.json();
-          if (weatherData && weatherData.current) {
-            if (temp === null) temp = weatherData.current.temperature_2m;
-            if (hum === null) hum = weatherData.current.relative_humidity_2m;
-            if (rain === null) rain = weatherData.current.precipitation * 30 || 100;
-          }
+      let temp = 25, hum = 60, rain = 100;
+      if (geoData && geoData.length > 0) {
+        const { lat, lon } = geoData[0];
+        const weatherRes = await fetch(\`https://api.open-meteo.com/v1/forecast?latitude=\${lat}&longitude=\${lon}&current=temperature_2m,relative_humidity_2m,precipitation\`);
+        const weatherData = await weatherRes.json();
+        if (weatherData && weatherData.current) {
+          temp = weatherData.current.temperature_2m;
+          hum = weatherData.current.relative_humidity_2m;
+          // estimate monthly rainfall from current precip or just send current
+          rain = weatherData.current.precipitation * 30 || 100;
         }
       }
-      
-      // Fallbacks if still null
-      if (temp === null) temp = 25;
-      if (hum === null) hum = 60;
-      if (rain === null) rain = 100;
-      
-      const finalSoilData = {
-        ...soilData,
-        temperature: temp.toString(),
-        humidity: hum.toString(),
-        rainfall: rain.toString()
-      };
-      
-      setSoilData(finalSoilData);
 
       const payload = {
-        ...finalSoilData,
+        ...soilData,
+        temperature: temp,
+        humidity: hum,
+        rainfall: rain,
         language
       };
 
@@ -250,22 +184,6 @@ export function SoilForm({ soilData, setSoilData, setRecommendations, setCurrent
         <div className="space-y-5">
           <h3 className="text-sm font-bold text-slate-800 border-b border-slate-100 pb-2 uppercase tracking-wider mt-4">{t(language, 'soil.climate')}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <div>
-              <label className="block text-[10px] uppercase font-bold text-slate-500 mb-1.5 ml-1">{t(language, 'soil.temp')} <span className="text-slate-400 font-normal ml-1">(Optional)</span></label>
-              <input type="number" step="0.1" min="-10" max="60" name="temperature" value={soilData.temperature} onChange={handleChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none transition-all text-sm font-medium" placeholder="Auto-fetch if empty" />
-              {fieldErrors.temperature && <p className="text-red-500 text-[10px] mt-1 ml-1 font-bold">{fieldErrors.temperature}</p>}
-            </div>
-            <div>
-              <label className="block text-[10px] uppercase font-bold text-slate-500 mb-1.5 ml-1">{t(language, 'soil.humidity')} <span className="text-slate-400 font-normal ml-1">(Optional)</span></label>
-              <input type="number" min="0" max="100" name="humidity" value={soilData.humidity} onChange={handleChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none transition-all text-sm font-medium" placeholder="Auto-fetch if empty" />
-              {fieldErrors.humidity && <p className="text-red-500 text-[10px] mt-1 ml-1 font-bold">{fieldErrors.humidity}</p>}
-            </div>
-            <div>
-              <label className="block text-[10px] uppercase font-bold text-slate-500 mb-1.5 ml-1">{t(language, 'soil.rainfall')} <span className="text-slate-400 font-normal ml-1">(Optional)</span></label>
-              <input type="number" min="0" max="5000" name="rainfall" value={soilData.rainfall} onChange={handleChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none transition-all text-sm font-medium" placeholder="Auto-fetch if empty" />
-              {fieldErrors.rainfall && <p className="text-red-500 text-[10px] mt-1 ml-1 font-bold">{fieldErrors.rainfall}</p>}
-            </div>
-
             <div className="space-y-2">
               <label className="block text-[10px] uppercase font-bold text-slate-500 ml-1">{t(language, 'soil.location')}</label>
               <LocationAutocomplete 
@@ -273,7 +191,6 @@ export function SoilForm({ soilData, setSoilData, setRecommendations, setCurrent
                 setLocation={(loc) => setSoilData(prev => ({ ...prev, location: loc }))}
                 placeholder="e.g. Punjab"
                 language={language}
-                onSelectCoordinates={(lat, lon) => fetchWeather(lat, lon)}
               />
               <button 
                 type="button"
@@ -285,7 +202,7 @@ export function SoilForm({ soilData, setSoilData, setRecommendations, setCurrent
                 {isLocating ? t(language, 'locating') : t(language, 'useLocation')}
               </button>
             </div>
-            <div className="md:col-span-2">
+            <div>
               <label className="block text-[10px] uppercase font-bold text-slate-500 mb-1.5 ml-1">{t(language, 'soil.season')}</label>
               <select required name="season" value={soilData.season} onChange={handleChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none transition-all text-sm font-medium h-[46px]">
                 <option value="">{t(language, 'soil.selectSeason')}</option>
@@ -315,3 +232,6 @@ export function SoilForm({ soilData, setSoilData, setRecommendations, setCurrent
     </div>
   );
 }
+`;
+
+fs.writeFileSync('src/components/SoilForm.tsx', code);
