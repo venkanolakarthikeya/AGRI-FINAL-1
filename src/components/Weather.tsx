@@ -25,7 +25,7 @@ export function Weather({ location, language }: WeatherProps) {
       
       try {
         // 1. Geocode the location string using Nominatim
-        const geoRes = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(location)}&format=json&limit=1`);
+        const geoRes = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(location)}&format=json&limit=1&accept-language=${language === "Hindi" ? "hi" : language === "Telugu" ? "te" : "en"}`);
         const geoData = await geoRes.json();
         
         if (!geoData || geoData.length === 0) {
@@ -37,7 +37,7 @@ export function Weather({ location, language }: WeatherProps) {
         const longitude = parseFloat(lon);
         
         // 2. Fetch weather data
-        const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,precipitation&hourly=temperature_2m,relative_humidity_2m&daily=temperature_2m_max,temperature_2m_min,uv_index_max,precipitation_sum&timezone=auto`);
+        const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,precipitation&hourly=temperature_2m,relative_humidity_2m&daily=temperature_2m_max,temperature_2m_min,uv_index_max,precipitation_sum&timezone=auto&models=best_match`);
         const data = await weatherRes.json();
         
         setWeatherData(data);

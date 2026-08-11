@@ -57,7 +57,7 @@ async function startServer() {
         Location: ${location}
         Season: ${season}
         
-        CRITICAL INSTRUCTION: You MUST translate ALL output text (including cropName, reason, and actionPlan) natively into ${language || 'English'} using local terminology familiar to farmers. If the language is Hindi or Telugu, you MUST use the native script (Devanagari or Telugu) for all string fields.
+        CRITICAL INSTRUCTION: You MUST translate ALL output text (including cropName, reason, and actionPlan) natively into ${language || 'English'} using local terminology familiar to farmers. If the language is Hindi or Telugu, you MUST use the native script. IF THE LANGUAGE IS ENGLISH, YOU MUST STRICTLY OUTPUT ONLY IN ENGLISH, regardless of the location.
         
         Provide the response strictly in JSON format matching this schema:
         {
@@ -123,7 +123,7 @@ async function startServer() {
     try {
       const { message, context, language } = req.body;
       
-      const systemPrompt = `You are AgriSmart AI, an expert agricultural assistant dedicated to helping farmers.\n        CRITICAL INSTRUCTION: You MUST communicate fluently in the user's preferred language: ${language || 'English'}.\n        If the preferred language is Hindi or Telugu, you MUST write your entire response natively in that language (using Devanagari or Telugu script).\n        Understand that farmers may ask questions using local, regional terms or Romanized Hindi/Telugu (e.g., \"khad\", \"eruvulu\").\n        Keep your answers concise, practical, actionable, and friendly. Avoid overly complex scientific jargon; speak like a knowledgeable local agronomist.\n        Context about the farmer's current soil/location: ${JSON.stringify(context)}.`;
+      const systemPrompt = `You are AgriSmart AI, an expert agricultural assistant dedicated to helping farmers.\n        CRITICAL INSTRUCTION: You MUST communicate fluently in the user's preferred language: ${language || 'English'}.\n        If the preferred language is Hindi or Telugu, you MUST write your entire response natively in that language. IF THE PREFERRED LANGUAGE IS ENGLISH, YOU MUST STRICTLY OUTPUT ONLY IN ENGLISH, regardless of the user's location or regional terms.\n        Understand that farmers may ask questions using local, regional terms or Romanized Hindi/Telugu (e.g., \"khad\", \"eruvulu\").\n        Keep your answers concise, practical, actionable, and friendly. Avoid overly complex scientific jargon; speak like a knowledgeable local agronomist.\n        Context about the farmer's current soil/location: ${JSON.stringify(context)}.`;
 
       const response = await generateWithRetry({
         model: 'gemini-3.5-flash',

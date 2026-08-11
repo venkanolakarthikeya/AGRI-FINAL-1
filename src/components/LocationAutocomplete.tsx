@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { MapPin } from 'lucide-react';
 
 interface LocationAutocompleteProps {
+  language?: string;
   location: string;
   setLocation: (loc: string) => void;
   placeholder?: string;
@@ -15,7 +16,7 @@ interface NominatimPlace {
   name?: string;
 }
 
-export function LocationAutocomplete({ location, setLocation, placeholder }: LocationAutocompleteProps) {
+export function LocationAutocomplete({ location, setLocation, placeholder, language = "English" }: LocationAutocompleteProps) {
   const [query, setQuery] = useState(location);
   const [suggestions, setSuggestions] = useState<NominatimPlace[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -46,7 +47,7 @@ export function LocationAutocomplete({ location, setLocation, placeholder }: Loc
     }
 
     const timer = setTimeout(() => {
-      fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&addressdetails=1&limit=5`, {
+      fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&addressdetails=1&limit=5&accept-language=${language === "Hindi" ? "hi" : language === "Telugu" ? "te" : "en"}`, {
         headers: {
           'User-Agent': 'AgriApp/1.0 (hackathon)'
         }

@@ -21,7 +21,7 @@ export const t = (lang: Language, key: string): string => {
 const translations: Record<Language, any> = {
   English: {
     app: {
-      title: "AgriMind",
+      title: "AgriSmart",
       subtitle: "Precision Agriculture",
       newSoilTest: "New Soil Test",
       dashboard: "Dashboard",
@@ -139,7 +139,7 @@ const translations: Record<Language, any> = {
   },
   Hindi: {
     app: {
-      title: "एग्रीमाइंड",
+      title: "एग्रीस्मार्ट",
       subtitle: "सटीक कृषि",
       newSoilTest: "नया मृदा परीक्षण",
       dashboard: "डैशबोर्ड",
@@ -257,7 +257,7 @@ const translations: Record<Language, any> = {
   },
   Telugu: {
     app: {
-      title: "అగ్రిమైండ్",
+      title: "అగ్రిస్మార్ట్",
       subtitle: "ప్రిసిషన్ అగ్రికల్చర్",
       newSoilTest: "కొత్త మట్టి పరీక్ష",
       dashboard: "డ్యాష్‌బోర్డ్",
