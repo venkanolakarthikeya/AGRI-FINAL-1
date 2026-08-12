@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import Markdown from 'react-markdown';
+import { motion } from 'motion/react';
 import { Recommendation, Language, SoilData, ViewState } from '../types';
-import { Sprout, Loader2, CheckCircle2, X, Edit2, Volume2, Square } from 'lucide-react';
+import { Sprout, Loader2, CheckCircle2, X, Edit2, Volume2, Square, Wand2, Sparkles } from 'lucide-react';
 import { t } from '../translations';
 
 interface RecommendationsProps {
@@ -101,8 +102,19 @@ export function Recommendations({ recommendations, isLoading, language, soilCont
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+    <motion.div 
+      className="space-y-6"
+      initial="hidden"
+      animate="visible"
+      variants={{
+        hidden: { opacity: 0 },
+        visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
+      }}
+    >
+      <motion.div 
+        variants={{ hidden: { opacity: 0, y: -20 }, visible: { opacity: 1, y: 0 } }}
+        className="flex items-center justify-between bg-white rounded-2xl border border-slate-200 p-5 shadow-sm"
+      >
         <h2 className="text-lg font-bold text-slate-800 tracking-tight flex items-center gap-3">
           <div className="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center">
             <Sprout className="w-5 h-5 text-emerald-600" />
@@ -121,50 +133,161 @@ export function Recommendations({ recommendations, isLoading, language, soilCont
             {language} {t(language, 'recs.translation')}
           </span>
         </div>
-      </div>
+      </motion.div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {recommendations.map((rec, index) => (
-          <div key={index} className={`bg-white rounded-2xl overflow-hidden flex flex-col shadow-sm ${rec.isPrimary ? 'border-none md:col-span-2 lg:col-span-3 lg:flex-row shadow-md' : 'border border-slate-200'}`}>
-            
-            {/* Visual Header / Banner */}
-            <div className={`p-6 text-white ${rec.isPrimary ? 'lg:w-1/3 flex flex-col justify-center bg-gradient-to-br from-emerald-600 to-emerald-800' : 'bg-slate-800'}`}>
-              <div className="flex justify-between items-start mb-4">
-                {rec.isPrimary && <span className="bg-white/20 text-white text-[10px] font-bold px-2 py-1 rounded-lg uppercase tracking-wider">{t(language, 'recs.topMatch')}</span>}
-                <span className="bg-white/20 text-white text-xs font-bold px-3 py-1 rounded-lg ml-auto">{rec.matchPercentage}% {t(language, 'recs.suitability')}</span>
+      <motion.div 
+        variants={{ hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.1 } } }}
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+      >
+        {recommendations.map((rec, index) => {
+          if (rec.isPrimary) {
+            return (
+              <motion.div 
+                key={index}
+                className="md:col-span-2 lg:col-span-3 relative group"
+                variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }}
+              >
+                {/* Magic Wand Animation */}
+                <motion.div
+                  initial={{ x: "-20%", y: 0, opacity: 0, rotate: -45 }}
+                  animate={{ x: "120%", y: [0, -20, 10, -10, 0], opacity: [0, 1, 1, 0], rotate: [0, 20, -10, 10, 45] }}
+                  transition={{ duration: 2, ease: "easeInOut", delay: 0.2 }}
+                  className="absolute top-1/3 left-0 z-50 pointer-events-none drop-shadow-[0_0_15px_rgba(250,204,21,0.8)] text-yellow-400"
+                >
+                  <Wand2 className="w-16 h-16" />
+                  <motion.div
+                    animate={{ scale: [1, 1.5, 1], opacity: [0.5, 1, 0.5] }}
+                    transition={{ repeat: Infinity, duration: 0.5 }}
+                    className="absolute -top-2 -right-2"
+                  >
+                    <Sparkles className="w-8 h-8 text-yellow-200" />
+                  </motion.div>
+                  <motion.div
+                    animate={{ scale: [1, 2, 1], opacity: [0.3, 0.8, 0.3] }}
+                    transition={{ repeat: Infinity, duration: 0.3, delay: 0.1 }}
+                    className="absolute bottom-0 -left-4"
+                  >
+                    <Sparkles className="w-6 h-6 text-emerald-300" />
+                  </motion.div>
+                </motion.div>
+                
+                {/* Reveal Card */}
+                <motion.div 
+                  initial={{ clipPath: "circle(0% at 0% 50%)", filter: "brightness(1.5)" }}
+                  animate={{ clipPath: "circle(150% at 0% 50%)", filter: "brightness(1)" }}
+                  transition={{ duration: 1.8, ease: "easeInOut", delay: 0.3 }}
+                  className="bg-white rounded-2xl overflow-hidden flex flex-col shadow-md lg:flex-row border-none relative"
+                >
+                   <div className="p-6 text-white lg:w-1/3 flex flex-col justify-center bg-gradient-to-br from-emerald-600 to-emerald-800 relative overflow-hidden">
+                     {/* Magic glow background inside card */}
+                     <motion.div 
+                        initial={{ opacity: 0, scale: 0 }}
+                        animate={{ opacity: 0.3, scale: 1 }}
+                        transition={{ duration: 1, delay: 1 }}
+                        className="absolute -top-10 -right-10 w-40 h-40 bg-yellow-300 rounded-full blur-3xl pointer-events-none"
+                     />
+                     <div className="flex justify-between items-start mb-4 relative z-10">
+                       <span className="bg-white/20 text-white text-[10px] font-bold px-2 py-1 rounded-lg uppercase tracking-wider shadow-sm">{t(language, 'recs.topMatch')}</span>
+                       <span className="bg-white/20 text-white text-xs font-bold px-3 py-1 rounded-lg ml-auto shadow-sm">{rec.matchPercentage}% {t(language, 'recs.suitability')}</span>
+                     </div>
+                     <h3 className="text-3xl font-black relative z-10 drop-shadow-md">{rec.cropName}</h3>
+                   </div>
+                   
+                   <div className="p-6 flex-1 flex flex-col bg-emerald-50/50">
+                     <div className="flex-1 space-y-4">
+                       <div>
+                         <h4 className="text-sm font-bold text-slate-800 mb-2 flex items-center gap-2">
+                           <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                           {t(language, 'recs.whyCrop')}
+                         </h4>
+                         <p className="text-sm text-slate-600 leading-relaxed">{rec.reason}</p>
+                       </div>
+                       
+                       <div className="bg-white p-4 rounded-xl border border-emerald-100 mt-4 shadow-sm relative overflow-hidden group-hover:border-emerald-200 transition-colors">
+                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-emerald-100/30 to-transparent -translate-x-full animate-[shimmer_2.5s_infinite]" />
+                         <h4 className="text-xs font-bold text-slate-800 mb-1 uppercase tracking-wider relative z-10">{t(language, 'recs.actionPlan')}</h4>
+                         <p className="text-slate-600 text-xs leading-relaxed relative z-10">{rec.actionPlan}</p>
+                       </div>
+                     </div>
+                     
+                     <motion.button 
+                       onClick={() => handleViewFull(rec)} 
+                       whileHover={{ scale: 1.02 }}
+                       whileTap={{ scale: 0.98 }}
+                       className="mt-6 w-full font-bold py-3 rounded-xl transition-all text-sm bg-emerald-600 hover:bg-emerald-500 text-white shadow-[0_0_15px_rgba(16,185,129,0.5)] hover:shadow-[0_0_25px_rgba(16,185,129,0.8)] relative overflow-hidden group/btn"
+                     >
+                       <span className="relative z-10 flex items-center justify-center gap-2">
+                         <Sparkles className="w-4 h-4" />
+                         {t(language, 'recs.viewFull')}
+                       </span>
+                       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover/btn:animate-[shimmer_1s_infinite]" />
+                     </motion.button>
+                   </div>
+                </motion.div>
+              </motion.div>
+            );
+          }
+
+          return (
+            <motion.div 
+              variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
+              key={index} 
+              className="bg-white rounded-2xl overflow-hidden flex flex-col shadow-sm border border-slate-200"
+            >
+              {/* Visual Header / Banner */}
+              <div className="p-6 text-white bg-slate-800">
+                <div className="flex justify-between items-start mb-4">
+                  <span className="bg-white/20 text-white text-xs font-bold px-3 py-1 rounded-lg ml-auto">{rec.matchPercentage}% {t(language, 'recs.suitability')}</span>
+                </div>
+                <h3 className="text-2xl font-black">{rec.cropName}</h3>
               </div>
-              <h3 className="text-2xl font-black">{rec.cropName}</h3>
-            </div>
 
-            {/* Content Body */}
-            <div className={`p-6 flex-1 flex flex-col ${rec.isPrimary ? 'bg-emerald-50/50' : 'bg-white'}`}>
-              <div className="flex-1 space-y-4">
-                <div>
-                  <h4 className="text-sm font-bold text-slate-800 mb-2 flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                    {t(language, 'recs.whyCrop')}
-                  </h4>
-                  <p className="text-sm text-slate-600 leading-relaxed">{rec.reason}</p>
+              {/* Content Body */}
+              <div className="p-6 flex-1 flex flex-col bg-white">
+                <div className="flex-1 space-y-4">
+                  <div>
+                    <h4 className="text-sm font-bold text-slate-800 mb-2 flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                      {t(language, 'recs.whyCrop')}
+                    </h4>
+                    <p className="text-sm text-slate-600 leading-relaxed">{rec.reason}</p>
+                  </div>
+                  
+                  <div className="bg-white p-4 rounded-xl border border-slate-200 mt-4 shadow-sm">
+                    <h4 className="text-xs font-bold text-slate-800 mb-1 uppercase tracking-wider">{t(language, 'recs.actionPlan')}</h4>
+                    <p className="text-slate-600 text-xs leading-relaxed">{rec.actionPlan}</p>
+                  </div>
                 </div>
                 
-                <div className="bg-white p-4 rounded-xl border border-slate-200 mt-4 shadow-sm">
-                  <h4 className="text-xs font-bold text-slate-800 mb-1 uppercase tracking-wider">{t(language, 'recs.actionPlan')}</h4>
-                  <p className="text-slate-600 text-xs leading-relaxed">{rec.actionPlan}</p>
-                </div>
+                <motion.button 
+                  onClick={() => handleViewFull(rec)} 
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="mt-6 w-full font-bold py-3 rounded-xl transition-all text-sm bg-slate-100 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 border border-transparent hover:border-emerald-200 flex items-center justify-center gap-2"
+                >
+                  <Sparkles className="w-4 h-4 opacity-50" />
+                  {t(language, 'recs.viewFull')}
+                </motion.button>
               </div>
-              
-              <button onClick={() => handleViewFull(rec)} className={`mt-6 w-full font-bold py-3 rounded-xl transition-colors text-sm ${rec.isPrimary ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-md' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'}`}>
-                {t(language, 'recs.viewFull')}
-              </button>
-            </div>
-
-          </div>
-        ))}
-      </div>
+            </motion.div>
+          );
+        })}
+      </motion.div>
 
       {selectedCrop && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[80vh] flex flex-col shadow-2xl overflow-hidden">
+        <motion.div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          <motion.div 
+            className="bg-white rounded-2xl w-full max-w-2xl max-h-[80vh] flex flex-col shadow-2xl overflow-hidden"
+            initial={{ scale: 0.8, opacity: 0, rotateX: 20, y: 40 }}
+            animate={{ scale: 1, opacity: 1, rotateX: 0, y: 0 }}
+            exit={{ scale: 0.8, opacity: 0, rotateX: -20, y: 40 }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+          >
             <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-emerald-600 text-white">
               <h3 className="font-bold text-lg">{selectedCrop.cropName} - {t(language, 'recs.viewFull')}</h3>
               <button onClick={handleCloseModal} className="text-emerald-100 hover:text-white transition-colors">
@@ -200,9 +323,9 @@ export function Recommendations({ recommendations, isLoading, language, soilCont
                 Close
               </button>
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       )}
-    </div>
+    </motion.div>
   );
 }

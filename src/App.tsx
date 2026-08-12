@@ -4,6 +4,7 @@
  */
 
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { Sidebar } from './components/Sidebar';
 import { TopBar } from './components/TopBar';
 import { Dashboard } from './components/Dashboard';
@@ -52,7 +53,17 @@ export default function App() {
         <TopBar language={language} setLanguage={setLanguage} location={soilData.location} setCurrentView={setCurrentView} />
         <main className="flex-1 overflow-y-auto p-4 md:p-8 pb-20 md:pb-8">
           <div className="max-w-7xl mx-auto w-full">
-            {renderView()}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentView}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+              >
+                {renderView()}
+              </motion.div>
+            </AnimatePresence>
           </div>
         </main>
       </div>

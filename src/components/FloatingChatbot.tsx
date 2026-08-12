@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Markdown from 'react-markdown';
+import { motion } from 'motion/react';
 import { ChatMessage, Language, SoilData } from '../types';
 import { Send, Bot, X, Loader2, Mic, MicOff, Volume2, Square } from 'lucide-react';
 import { t } from '../translations';
@@ -171,13 +172,24 @@ export function FloatingChatbot({ language, soilContext }: FloatingChatbotProps)
   return (
     <>
       {/* Floating Button */}
-      <button
+      <motion.button
         onClick={() => setIsOpen(true)}
-        className={`fixed bottom-[80px] md:bottom-8 right-4 md:right-8 w-14 h-14 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full flex items-center justify-center shadow-2xl transition-all hover:scale-105 z-50 ${isOpen ? 'scale-0 opacity-0 pointer-events-none' : 'scale-100 opacity-100'}`}
+        whileHover={{ scale: 1.1, rotate: 15 }}
+        whileTap={{ scale: 0.9, rotate: -15 }}
+        initial={{ y: 50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ type: "spring", stiffness: 300, damping: 20 }}
+        className={`fixed bottom-[80px] md:bottom-8 right-4 md:right-8 w-14 h-14 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full flex items-center justify-center shadow-2xl z-50 ${isOpen ? 'scale-0 opacity-0 pointer-events-none' : 'scale-100 opacity-100'}`}
         aria-label="Open AI Assistant"
       >
         <Bot className="w-6 h-6" />
-      </button>
+        {/* Cool ripple/glow effect on idle */}
+        <motion.div
+          className="absolute inset-0 rounded-full border-2 border-emerald-400 z-[-1]"
+          animate={{ scale: [1, 1.5], opacity: [0.8, 0] }}
+          transition={{ repeat: Infinity, duration: 2, ease: "easeOut" }}
+        />
+      </motion.button>
 
       {/* Chat Window */}
       <div 

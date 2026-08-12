@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion } from 'motion/react';
 import { ViewState, SoilData, Recommendation, Language } from '../types';
 import { Loader2, TestTube, MapPin } from 'lucide-react';
 import { t } from '../translations';
@@ -201,8 +202,17 @@ export function SoilForm({ soilData, setSoilData, setRecommendations, setCurrent
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div>
+    <motion.div 
+      className="max-w-4xl mx-auto space-y-6"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+    >
+      <motion.div
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.1 }}
+      >
         <h2 className="text-2xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
           <div className="p-2 bg-emerald-100 rounded-xl">
             <TestTube className="w-6 h-6 text-emerald-600" />
@@ -210,9 +220,15 @@ export function SoilForm({ soilData, setSoilData, setRecommendations, setCurrent
           {t(language, 'soil.title')}
         </h2>
         <p className="text-slate-500 mt-2">{t(language, 'soil.desc')}</p>
-      </div>
+      </motion.div>
 
-      <form onSubmit={handleSubmit} className="bg-white border border-slate-200 shadow-sm rounded-2xl p-6 md:p-8 space-y-8">
+      <motion.form 
+        onSubmit={handleSubmit} 
+        className="bg-white border border-slate-200 shadow-sm rounded-2xl p-6 md:p-8 space-y-8"
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.2 }}
+      >
         {error && (
           <div className="bg-red-50 text-red-600 p-4 rounded-xl font-medium border border-red-100 text-sm">
             {error}
@@ -311,7 +327,7 @@ export function SoilForm({ soilData, setSoilData, setRecommendations, setCurrent
             )}
           </button>
         </div>
-      </form>
-    </div>
+      </motion.form>
+    </motion.div>
   );
 }

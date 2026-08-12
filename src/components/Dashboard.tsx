@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'motion/react';
 import { ViewState, Recommendation, Language, SoilData } from '../types';
 import { Lightbulb, Droplets, Thermometer, Wind, Sprout, X, Loader2 } from 'lucide-react';
 import { t } from '../translations';
@@ -58,8 +59,17 @@ export function Dashboard({ setCurrentView, recommendations, language, soilConte
 
 
   return (
-    <div className="space-y-6">
-      <div className="bg-white border border-slate-200 shadow-sm p-4 md:p-5 rounded-2xl flex items-start gap-4">
+    <motion.div 
+      className="space-y-6"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ staggerChildren: 0.1 }}
+    >
+      <motion.div 
+        className="bg-white border border-slate-200 shadow-sm p-4 md:p-5 rounded-2xl flex items-start gap-4"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
         <div className="p-2 bg-emerald-50 rounded-xl border border-emerald-100 shrink-0">
           <Lightbulb className="w-6 h-6 text-emerald-600" />
         </div>
@@ -77,9 +87,13 @@ export function Dashboard({ setCurrentView, recommendations, language, soilConte
               : t(language, 'dashboard.optimalDesc')}
           </p>
         </div>
-      </div>
+      </motion.div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <motion.div 
+        className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
         <div className="lg:col-span-2 space-y-6">
           <div className="flex items-center justify-between bg-white rounded-2xl border border-slate-200 p-5 shadow-sm mb-[-12px]">
             <h3 className="text-lg font-bold text-slate-800">{t(language, 'dashboard.topCrops')}</h3>
@@ -99,7 +113,11 @@ export function Dashboard({ setCurrentView, recommendations, language, soilConte
           {recommendations ? (
              <div className="grid grid-cols-1 gap-4">
                 {recommendations.map((rec, i) => (
-                  <div key={i} className={`overflow-hidden transition-all ${rec.isPrimary ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-2xl text-white shadow-md' : 'bg-white border border-slate-200 rounded-2xl shadow-sm'}`}>
+                  <motion.div key={i} className={`overflow-hidden transition-all ${rec.isPrimary ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-2xl text-white shadow-md' : 'bg-white border border-slate-200 rounded-2xl shadow-sm'}`}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.1 }}
+                  >
                     <div className="p-5 flex flex-col md:flex-row gap-6">
                       <div className="flex-1 space-y-4">
                         <div className="flex items-center justify-between">
@@ -116,23 +134,39 @@ export function Dashboard({ setCurrentView, recommendations, language, soilConte
                         
                         {rec.isPrimary && (
                           <div className="flex flex-wrap gap-3 mt-4">
-                            <button onClick={() => handleInsight(rec, 'timeline')} className="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-xl text-xs font-bold transition-colors">
+                            <motion.button 
+                              onClick={() => handleInsight(rec, 'timeline')} 
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              className="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-xl text-xs font-bold transition-colors"
+                            >
                               {t(language, 'dashboard.viewTimeline')}
-                            </button>
-                            <button onClick={() => handleInsight(rec, 'pricing')} className="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-xl text-xs font-bold transition-colors">
+                            </motion.button>
+                            <motion.button 
+                              onClick={() => handleInsight(rec, 'pricing')} 
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              className="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-xl text-xs font-bold transition-colors"
+                            >
                               {t(language, 'dashboard.marketPricing')}
-                            </button>
+                            </motion.button>
                           </div>
                         )}
+
                         {!rec.isPrimary && (
-                          <button onClick={() => handleInsight(rec, 'actionPlan')} className="w-full bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold py-3 rounded-xl transition-colors border border-slate-200 flex items-center justify-center gap-2 text-sm">
+                          <motion.button 
+                            onClick={() => handleInsight(rec, 'actionPlan')} 
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            className="w-full bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold py-3 rounded-xl transition-colors border border-slate-200 flex items-center justify-center gap-2 text-sm hover:border-emerald-200 hover:text-emerald-700"
+                          >
                             <Sprout className="w-4 h-4" />
                             {t(language, 'dashboard.viewActionPlan')}
-                          </button>
+                          </motion.button>
                         )}
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
              </div>
           ) : (
@@ -175,11 +209,22 @@ export function Dashboard({ setCurrentView, recommendations, language, soilConte
            </div>
 
         </div>
-      </div>
+      </motion.div>
 
       {modalData && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[80vh] flex flex-col shadow-2xl overflow-hidden">
+        <motion.div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          <motion.div 
+            className="bg-white rounded-2xl w-full max-w-2xl max-h-[80vh] flex flex-col shadow-2xl overflow-hidden"
+            initial={{ scale: 0.8, opacity: 0, rotateX: 20, y: 40 }}
+            animate={{ scale: 1, opacity: 1, rotateX: 0, y: 0 }}
+            exit={{ scale: 0.8, opacity: 0, rotateX: -20, y: 40 }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+          >
             <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-emerald-600 text-white">
               <h3 className="font-bold text-lg">{modalData.title}</h3>
               <button onClick={() => setModalData(null)} className="text-emerald-100 hover:text-white transition-colors">
@@ -203,9 +248,9 @@ export function Dashboard({ setCurrentView, recommendations, language, soilConte
                 {t(language, "dashboard.close")}
               </button>
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       )}
-    </div>
+    </motion.div>
   );
 }

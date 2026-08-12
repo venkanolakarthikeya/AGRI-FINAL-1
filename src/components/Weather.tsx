@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'motion/react';
 import { CloudSun, Droplets, Thermometer, Wind, AlertTriangle, Sun, Moon } from 'lucide-react';
 import { Language } from '../types';
 import { t } from '../translations';
@@ -67,27 +68,44 @@ export function Weather({ location, language }: WeatherProps) {
   const daily = weatherData.daily;
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+    <motion.div 
+      className="space-y-6"
+      initial="hidden"
+      animate="visible"
+      variants={{
+        hidden: { opacity: 0 },
+        visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
+      }}
+    >
+      <motion.div 
+        variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
+        className="flex items-center justify-between bg-white border border-slate-200 rounded-2xl p-5 shadow-sm"
+      >
         <h2 className="text-lg font-bold text-slate-800 tracking-tight flex items-center gap-3">
           <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
             <CloudSun className="w-5 h-5 text-blue-500" />
           </div>
           {t(language, 'weather.title')}
         </h2>
-      </div>
+      </motion.div>
 
       {current.temperature_2m > 35 && (
-        <div className="bg-red-50 border border-red-200 p-5 rounded-2xl shadow-sm flex items-start gap-4">
+        <motion.div 
+          variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
+          className="bg-red-50 border border-red-200 p-5 rounded-2xl shadow-sm flex items-start gap-4"
+        >
           <AlertTriangle className="w-6 h-6 text-red-500 shrink-0" />
           <div>
             <h3 className="font-bold text-red-800 text-sm">{t(language, 'weather.heatWarning')}</h3>
             <p className="text-red-600 text-xs mt-1 leading-relaxed">{t(language, 'weather.heatDesc')}</p>
           </div>
-        </div>
+        </motion.div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <motion.div 
+        variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+      >
         {/* Main Current Card */}
         <div className="bg-white border border-slate-200 rounded-2xl p-6 lg:col-span-1 shadow-sm flex flex-col justify-between">
           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-4 text-center">{t(language, 'weather.current')}</p>
@@ -155,9 +173,12 @@ export function Weather({ location, language }: WeatherProps) {
               <p className="text-[10px] text-emerald-600 font-bold uppercase tracking-wider leading-relaxed mt-auto">{t(language, 'weather.solarDesc')}</p>
            </div>
         </div>
-      </div>
+      </motion.div>
 
-      <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+      <motion.div 
+        variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
+        className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm"
+      >
         <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider mb-5">{t(language, 'weather.outlook')}</h3>
         <div className="divide-y divide-slate-100">
            {daily.time.map((time: string, i: number) => {
@@ -187,8 +208,8 @@ export function Weather({ location, language }: WeatherProps) {
              );
            })}
         </div>
-      </div>
+      </motion.div>
 
-    </div>
+    </motion.div>
   );
 }
