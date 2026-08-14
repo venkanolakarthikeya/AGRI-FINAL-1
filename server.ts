@@ -13,12 +13,8 @@ async function startServer() {
   // Initialize Gemini API
   const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
   const fallbackModels = [
-    'gemini-3.7-flash',
-    'gemini-3.6-flash',
     'gemini-3.5-flash',
-    'gemini-2.5-pro',
     'gemini-2.5-flash',
-    'gemini-pro-latest',
     'gemini-flash-latest'
   ];
 
