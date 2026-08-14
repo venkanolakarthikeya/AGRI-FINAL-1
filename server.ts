@@ -5,7 +5,7 @@ import { GoogleGenAI, Type } from '@google/genai';
 
 async function startServer() {
   const app = express();
-  const PORT = parseInt(process.env.PORT as string, 10) || 3000;
+  const PORT = 3000;
 
   // Increase payload limit to accommodate base64 images
   app.use(express.json({ limit: '10mb' }));
@@ -13,7 +13,12 @@ async function startServer() {
   // Initialize Gemini API
   const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
   const fallbackModels = [
+    'gemini-3.7-flash',
+    'gemini-3.6-flash',
     'gemini-3.5-flash',
+    'gemini-2.5-pro',
+    'gemini-2.5-flash',
+    'gemini-pro-latest',
     'gemini-flash-latest'
   ];
 
