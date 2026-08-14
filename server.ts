@@ -7,15 +7,14 @@ async function startServer() {
   const app = express();
   const PORT = parseInt(process.env.PORT as string, 10) || 3000;
 
-  app.use(express.json());
+  // Increase payload limit to accommodate base64 images
+  app.use(express.json({ limit: '10mb' }));
 
   // Initialize Gemini API
   const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-
   const fallbackModels = [
     'gemini-3.5-flash',
-    'gemini-flash-latest',
-    'gemini-3.5-flash-lite'
+    'gemini-flash-latest'
   ];
 
   async function generateWithRetry(modelArgs: any) {
@@ -42,6 +41,63 @@ async function startServer() {
   }
 
   // API Routes
+  app.post('/api/extract-soil-card', async (req, res) => {
+    try {
+      const { imageBase64 } = req.body;
+      
+      if (!imageBase64) {
+        return res.status(400).json({ error: "Image data is required" });
+      }
+
+      // Remove the data:image/jpeg;base64, prefix if present
+      const base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, "");
+
+      const prompt = `
+        You are an expert AI agricultural assistant. 
+        Analyze this image of a Soil Health Card or soil test report.
+        Extract the following values if they exist:
+        - Nitrogen (N) in kg/ha
+        - Phosphorus (P) in kg/ha
+        - Potassium (K) in kg/ha
+        - pH Level
+
+        If a value is not found, return an empty string for it.
+        Return ONLY a JSON object matching this schema.
+      `;
+
+      const response = await generateWithRetry({
+        model: 'gemini-3.5-flash',
+        contents: [
+          { role: 'user', parts: [
+            { text: prompt },
+            { inlineData: { mimeType: 'image/jpeg', data: base64Data } }
+          ]}
+        ],
+        config: {
+          responseMimeType: 'application/json',
+          responseSchema: {
+            type: Type.OBJECT,
+            properties: {
+              n: { type: Type.STRING },
+              p: { type: Type.STRING },
+              k: { type: Type.STRING },
+              ph: { type: Type.STRING }
+            },
+            required: ['n', 'p', 'k', 'ph']
+          }
+        }
+      });
+
+      const text = response.text;
+      if (!text) throw new Error("No response from AI");
+      
+      res.json(JSON.parse(text));
+    } catch (error: any) {
+      console.warn('Extraction Error:', error?.message);
+      res.status(500).json({ error: 'Failed to extract data from image', details: error.message });
+    }
+  });
+
   app.post('/api/recommend', async (req, res) => {
     try {
       const { n, p, k, temperature, humidity, rainfall, ph, location, season, language } = req.body;

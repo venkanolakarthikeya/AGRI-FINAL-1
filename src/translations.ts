@@ -32,7 +32,9 @@ const translations: Record<Language, any> = {
       settings: "Settings",
       language: "Language",
       region: "REGION",
-      notSet: "Not Set"
+      notSet: "Not Set",
+      scanCard: "Scan Soil Card",
+      scanning: "Scanning..."
     },
     dashboard: {
       unlockInsights: "Complete a soil analysis to unlock AI-powered insights for your specific field conditions.",
@@ -154,7 +156,9 @@ const translations: Record<Language, any> = {
       settings: "सेटिंग्स",
       language: "भाषा",
       region: "क्षेत्र",
-      notSet: "सेट नहीं है"
+      notSet: "सेट नहीं है",
+      scanCard: "सॉइल कार्ड स्कैन करें",
+      scanning: "स्कैन हो रहा है..."
     },
     dashboard: {
       unlockInsights: "अपनी विशिष्ट खेत स्थितियों के लिए AI-संचालित अंतर्दृष्टि प्राप्त करने के लिए मृदा परीक्षण पूरा करें।",
@@ -276,7 +280,9 @@ const translations: Record<Language, any> = {
       settings: "సెట్టింగ్‌లు",
       language: "భాష",
       region: "ప్రాంతం",
-      notSet: "సెట్ చేయబడలేదు"
+      notSet: "సెట్ చేయబడలేదు",
+      scanCard: "సాయిల్ కార్డ్ స్కాన్ చేయండి",
+      scanning: "స్కాన్ అవుతోంది..."
     },
     dashboard: {
       unlockInsights: "మీ నిర్దిష్ట క్షేత్ర పరిస్థితుల కోసం AI-ఆధారిత అంతర్దృష్టులను అన్‌లాక్ చేయడానికి మట్టి విశ్లేషణను పూర్తి చేయండి.",

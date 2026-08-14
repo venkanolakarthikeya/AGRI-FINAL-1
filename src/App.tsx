@@ -25,6 +25,13 @@ export default function App() {
   });
   const [recommendations, setRecommendations] = useState<Recommendation[] | null>(null);
   const [isLoadingRecs, setIsLoadingRecs] = useState(false);
+  const [clickedMobileItem, setClickedMobileItem] = useState<string | null>(null);
+
+  const handleMobileNavClick = (id: ViewState) => {
+    setClickedMobileItem(id);
+    setCurrentView(id);
+    setTimeout(() => setClickedMobileItem(null), 600);
+  };
 
   const renderView = () => {
     switch (currentView) {
@@ -74,14 +81,53 @@ export default function App() {
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] flex justify-around p-3 z-50">
         {navItems.map((item) => {
           const isActive = currentView === item.id;
+          const isClicked = clickedMobileItem === item.id;
           return (
-            <button
+            <motion.button
               key={item.id}
-              onClick={() => setCurrentView(item.id as ViewState)}
-              className={`p-2 rounded-xl transition-colors ${isActive ? 'bg-emerald-50 text-emerald-600' : 'text-slate-400 hover:text-slate-600'}`}
+              whileTap={{ scale: 0.9 }}
+              onClick={() => handleMobileNavClick(item.id as ViewState)}
+              className={`p-2 rounded-xl transition-all relative ${isActive ? 'text-emerald-600' : 'text-slate-400 hover:text-slate-600'}`}
             >
-              <item.icon className="w-6 h-6" />
-            </button>
+              {/* Active Indicator Background */}
+              {isActive && (
+                <motion.div 
+                  layoutId="mobileNavIndicator"
+                  className="absolute inset-0 bg-emerald-50 rounded-xl -z-10"
+                  initial={false}
+                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                />
+              )}
+
+              {/* Icon Animation */}
+              <motion.div
+                animate={
+                  isClicked ? { 
+                    rotate: [0, -15, 15, -15, 0],
+                    scale: [1, 1.3, 1],
+                  } : { 
+                    rotate: 0, 
+                    scale: isActive ? 1.1 : 1 
+                  }
+                }
+                transition={{ duration: 0.5 }}
+              >
+                <item.icon className="w-6 h-6 relative z-10" />
+              </motion.div>
+              
+              {/* Ripple Effect */}
+              <AnimatePresence>
+                {isClicked && (
+                  <motion.div
+                    initial={{ scale: 0, opacity: 0.5 }}
+                    animate={{ scale: 2.5, opacity: 0 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className="absolute inset-0 bg-emerald-400/30 rounded-full z-0 pointer-events-none origin-center"
+                  />
+                )}
+              </AnimatePresence>
+            </motion.button>
           );
         })}
       </nav>

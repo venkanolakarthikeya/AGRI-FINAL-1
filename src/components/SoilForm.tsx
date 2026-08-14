@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion } from 'motion/react';
 import { ViewState, SoilData, Recommendation, Language } from '../types';
-import { Loader2, TestTube, MapPin } from 'lucide-react';
+import { Loader2, TestTube, MapPin, Camera } from 'lucide-react';
 import { t } from '../translations';
 import { LocationAutocomplete } from './LocationAutocomplete';
+import { CameraCapture } from './CameraCapture';
 
 interface SoilFormProps {
   soilData: SoilData;
@@ -19,6 +20,54 @@ export function SoilForm({ soilData, setSoilData, setRecommendations, setCurrent
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [isLocating, setIsLocating] = useState(false);
+  const [isScanning, setIsScanning] = useState(false);
+  const [showCamera, setShowCamera] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const processImage = async (base64data: string) => {
+    setIsScanning(true);
+    setError(null);
+    setShowCamera(false);
+    try {
+      const response = await fetch('/api/extract-soil-card', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imageBase64: base64data })
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Failed to extract data');
+
+      setSoilData(prev => ({
+        ...prev,
+        n: data.n || prev.n,
+        p: data.p || prev.p,
+        k: data.k || prev.k,
+        ph: data.ph || prev.ph
+      }));
+    } catch (err: any) {
+      setError(err.message || "Failed to scan card");
+    } finally {
+      setIsScanning(false);
+    }
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64data = reader.result as string;
+        await processImage(base64data);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+      };
+      reader.readAsDataURL(file);
+    } catch (err: any) {
+      setError(err.message || "Failed to scan card");
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
 
   const fetchWeather = async (lat: number | string, lon: number | string) => {
     try {
@@ -224,11 +273,22 @@ export function SoilForm({ soilData, setSoilData, setRecommendations, setCurrent
 
       <motion.form 
         onSubmit={handleSubmit} 
-        className="bg-white border border-slate-200 shadow-sm rounded-2xl p-6 md:p-8 space-y-8"
+        className="bg-white border border-slate-200 shadow-sm rounded-2xl p-6 md:p-8 space-y-8 relative"
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.2 }}
       >
+        {showCamera && (
+          <CameraCapture 
+            language={language} 
+            onCapture={processImage} 
+            onClose={() => setShowCamera(false)} 
+            onOpenGallery={() => {
+              setShowCamera(false);
+              fileInputRef.current?.click();
+            }}
+          />
+        )}
         {error && (
           <div className="bg-red-50 text-red-600 p-4 rounded-xl font-medium border border-red-100 text-sm">
             {error}
@@ -236,9 +296,38 @@ export function SoilForm({ soilData, setSoilData, setRecommendations, setCurrent
         )}
 
         <div className="space-y-5">
-          <h3 className="text-sm font-bold text-slate-800 border-b border-slate-100 pb-2 uppercase tracking-wider">
-            {t(language, 'soil.composition')} <span className="text-slate-400 font-normal ml-2">(Optional)</span>
-          </h3>
+          <div className="flex justify-between items-center border-b border-slate-100 pb-2">
+            <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">
+              {t(language, 'soil.composition')} <span className="text-slate-400 font-normal ml-2">(Optional)</span>
+            </h3>
+            <div className="relative">
+              <input 
+                type="file" 
+                accept="image/*"
+                ref={fileInputRef} 
+                onChange={handleFileChange} 
+                className="hidden" 
+              />
+              <button
+                type="button"
+                onClick={() => setShowCamera(true)}
+                disabled={isScanning}
+                className="flex items-center gap-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors border border-emerald-200 shadow-sm"
+              >
+                {isScanning ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    {t(language, 'dashboard.scanning') || 'Scanning...'}
+                  </>
+                ) : (
+                  <>
+                    <Camera className="w-3.5 h-3.5" />
+                    {t(language, 'dashboard.scanCard') || 'Scan Card'}
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
             <div>
               <label className="block text-[10px] uppercase font-bold text-emerald-700 mb-1.5 ml-1">{t(language, 'soil.nitrogen')}</label>
