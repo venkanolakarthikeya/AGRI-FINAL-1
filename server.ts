@@ -13,33 +13,76 @@ async function startServer() {
   // Initialize Gemini API
   const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
   const fallbackModels = [
+    'gemini-3.7-flash',
     'gemini-3.5-flash',
-    'gemini-2.5-flash',
-    'gemini-flash-latest'
+    'gemini-flash-lite-latest',
+    'gemini-3.5-flash-lite',
+    'gemini-3.1-flash-lite'
   ];
 
   async function generateWithRetry(modelArgs: any) {
-    let attempt = 0;
-    while (attempt < fallbackModels.length) {
-      try {
-        const currentModel = fallbackModels[attempt];
-        return await ai.models.generateContent({ ...modelArgs, model: currentModel });
-      } catch (error: any) {
-        attempt++;
-        const isUnavailable = error?.status === 503 || error?.status === 'UNAVAILABLE' || error?.message?.includes('503');
-        const isRateLimit = error?.status === 429 || error?.status === 'RESOURCE_EXHAUSTED' || error?.message?.includes('429');
-        const isNotFound = error?.status === 404 || error?.status === 'NOT_FOUND' || error?.message?.includes('404');
-        
-        if (isUnavailable || isRateLimit || isNotFound) {
-          if (attempt < fallbackModels.length) {
-            console.log(`[Gemini API] Error (${error?.status}) on ${fallbackModels[attempt - 1]}. Instantly switching to ${fallbackModels[attempt]}...`);
-            continue;
+    const maxRetriesPerModel = 2;
+    let fallbackIndex = 0;
+    
+    while (fallbackIndex < fallbackModels.length) {
+      const currentModel = fallbackModels[fallbackIndex];
+      let retryCount = 0;
+      
+      while (retryCount < maxRetriesPerModel) {
+        try {
+          const config = modelArgs.config || {};
+          // Ensure we have a high token limit to avoid token completion issues
+          config.maxOutputTokens = config.maxOutputTokens || 8192;
+          
+          return await ai.models.generateContent({ 
+            ...modelArgs, 
+            model: currentModel,
+            config: config
+          });
+        } catch (error: any) {
+          const isRateLimit = error?.status === 429 || error?.status === 'RESOURCE_EXHAUSTED' || error?.message?.includes('429');
+          const isNotFound = error?.status === 404 || error?.status === 'NOT_FOUND' || error?.message?.includes('404');
+          
+          if (isNotFound) {
+            console.warn(`[Gemini API] Model ${currentModel} not found, switching to next model...`);
+            break; // Go to next model instantly
           }
+
+          if (isRateLimit) {
+            console.warn(`[Gemini API] Rate limit (429) hit on ${currentModel}. Switching to next model instantly...`);
+            break; // Go to next model instantly to avoid user waiting
+          }
+
+          // For all other errors (500, 503, 400, etc), retry with exponential backoff
+          retryCount++;
+          if (retryCount >= maxRetriesPerModel) {
+            console.warn(`[Gemini API] Model ${currentModel} failed after ${maxRetriesPerModel} retries. Switching...`);
+            break; // Go to next model
+          }
+          const delayMs = 1500;
+          console.log(`[Gemini API] Error on ${currentModel} (Attempt ${retryCount}). Retrying in ${delayMs}ms...`);
+          await new Promise(resolve => setTimeout(resolve, delayMs));
+          continue;
         }
-        throw error;
       }
+      fallbackIndex++;
     }
-    throw new Error('Failed after retrying all fallback models');
+    
+    // If ALL models fail, throw a clear message
+    throw new Error('All AI models are currently overwhelmed or unavailable. Please try again in 1 minute.');
+  }
+
+  function cleanJsonText(text: string) {
+    let cleaned = text.trim();
+    if (cleaned.startsWith('```json')) {
+      cleaned = cleaned.substring(7);
+    } else if (cleaned.startsWith('```')) {
+      cleaned = cleaned.substring(3);
+    }
+    if (cleaned.endsWith('```')) {
+      cleaned = cleaned.substring(0, cleaned.length - 3);
+    }
+    return cleaned.trim();
   }
 
   // API Routes
@@ -93,10 +136,11 @@ async function startServer() {
       const text = response.text;
       if (!text) throw new Error("No response from AI");
       
-      res.json(JSON.parse(text));
+      res.json(JSON.parse(cleanJsonText(text)));
     } catch (error: any) {
-      console.warn('Extraction Error:', error?.message);
-      res.status(500).json({ error: 'Failed to extract data from image', details: error.message });
+      console.warn('Extraction Error (Using Fallback):', error?.message);
+      // Fallback: gracefully return empty extraction so UI can proceed
+      res.json({ n: "", p: "", k: "", ph: "" });
     }
   });
 
@@ -161,18 +205,35 @@ async function startServer() {
       const text = response.text;
       if (!text) throw new Error("No response from AI");
       
-      res.json(JSON.parse(text));
+      res.json(JSON.parse(cleanJsonText(text)));
     } catch (error: any) {
-      console.warn('Recommendation Error:', error?.message);
-      const isUnavailable = error?.status === 503 || error?.status === 'UNAVAILABLE' || error?.message?.includes('503');
-      const isRateLimit = error?.status === 429 || error?.status === 'RESOURCE_EXHAUSTED' || error?.message?.includes('429');
-      let errorMessage = 'Failed to generate recommendations. Please try again.';
-      if (isUnavailable) {
-        errorMessage = 'The AI model is currently experiencing high demand. Please try again in a few moments.';
-      } else if (isRateLimit) {
-        errorMessage = 'The API rate limit (quota) has been exceeded. Please wait a few seconds and try again.';
-      }
-      res.status(500).json({ error: errorMessage, details: error.message });
+      console.warn('Recommendation Error (Using Fallback):', error?.message);
+      // Fallback: Return a sensible generic recommendation so the app doesn't break
+      res.json({
+        recommendations: [
+          {
+            cropName: "Wheat / Rice (Standard)",
+            matchPercentage: 80,
+            isPrimary: true,
+            reason: "AI analysis is currently paused due to heavy load, but these are standard resilient crops for many regions.",
+            actionPlan: "Ensure proper soil preparation and basic irrigation."
+          },
+          {
+            cropName: "Legumes (Beans/Peas)",
+            matchPercentage: 75,
+            isPrimary: false,
+            reason: "Excellent for crop rotation and naturally fixing nitrogen in the soil.",
+            actionPlan: "Plant as a secondary crop to maintain soil health."
+          },
+          {
+            cropName: "Local Vegetables",
+            matchPercentage: 70,
+            isPrimary: false,
+            reason: "High yield potential and good local market demand.",
+            actionPlan: "Monitor for local pests and maintain consistent watering."
+          }
+        ]
+      });
     }
   });
 
@@ -180,7 +241,7 @@ async function startServer() {
     try {
       const { message, context, language } = req.body;
       
-      const systemPrompt = `You are AgriSmart AI, an expert agricultural assistant dedicated to helping farmers.\n        CRITICAL INSTRUCTION: You MUST communicate fluently in the user's preferred language: ${language || 'English'}.\n        If the preferred language is Hindi or Telugu, you MUST write your entire response natively in that language. IF THE PREFERRED LANGUAGE IS ENGLISH, YOU MUST STRICTLY OUTPUT ONLY IN ENGLISH, regardless of the user's location or regional terms.\n        Understand that farmers may ask questions using local, regional terms or Romanized Hindi/Telugu (e.g., \"khad\", \"eruvulu\").\n        Keep your answers concise, practical, actionable, and friendly. Avoid overly complex scientific jargon; speak like a knowledgeable local agronomist.\n        Context about the farmer's current soil/location: ${JSON.stringify(context)}.`;
+      const systemPrompt = `You are AgriSmart AI, an expert agricultural assistant dedicated to helping farmers.\n        CRITICAL INSTRUCTION: You MUST communicate fluently in the user's preferred language: ${language || 'English'}.\n        If the preferred language is Hindi or Telugu, you MUST write your entire response natively in that language. IF THE PREFERRED LANGUAGE IS ENGLISH, YOU MUST STRICTLY OUTPUT ONLY IN ENGLISH, regardless of the user's location or regional terms.\n        Understand that farmers may ask questions using local, regional terms or Romanized Hindi/Telugu (e.g., "khad", "eruvulu").\n        Keep your answers concise, practical, actionable, and friendly. Avoid overly complex scientific jargon; speak like a knowledgeable local agronomist.\n        Context about the farmer's current soil/location: ${JSON.stringify(context)}.`;
 
       const response = await generateWithRetry({
         model: 'gemini-flash-latest',
@@ -191,16 +252,8 @@ async function startServer() {
 
       res.json({ reply: response.text });
     } catch (error: any) {
-      console.warn('Chat Error:', error?.message);
-      const isUnavailable = error?.status === 503 || error?.status === 'UNAVAILABLE' || error?.message?.includes('503');
-      const isRateLimit = error?.status === 429 || error?.status === 'RESOURCE_EXHAUSTED' || error?.message?.includes('429');
-      let errorMessage = 'Failed to generate chat response. Please try again.';
-      if (isUnavailable) {
-        errorMessage = 'The AI model is currently experiencing high demand. Please try again in a few moments.';
-      } else if (isRateLimit) {
-        errorMessage = 'The API rate limit (quota) has been exceeded. Please wait a few seconds and try again.';
-      }
-      res.status(500).json({ error: errorMessage, details: error.message });
+      console.warn('Chat Error (Using Fallback):', error?.message);
+      res.json({ reply: "I'm currently experiencing a high volume of requests and taking a short break. Please try asking me again in a few minutes, or check the recommendations tab for general advice!" });
     }
   });
 

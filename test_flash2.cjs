@@ -1,17 +1,15 @@
 const { GoogleGenAI } = require('@google/genai');
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-const models = [
-  'gemini-3.1-flash-lite',
-  'gemini-3.1-pro-preview'
-];
-
 async function test() {
+  const models = ['gemini-3.7-flash'];
   for (const m of models) {
     try {
       await ai.models.generateContent({ model: m, contents: "Hello" });
-      console.log(`${m} SUCCEEDED!`);
+      console.log(m, "WORKS");
     } catch (e) {
-      console.log(`${m} FAILED: ${e.status} - ${e.message}`);
+      console.log(m, "FAILS");
+      console.log("Status:", e.status);
+      console.log("Message:", e.message);
     }
   }
 }
